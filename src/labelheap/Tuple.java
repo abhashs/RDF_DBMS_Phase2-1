@@ -1,13 +1,13 @@
-/* File Quadruple.java */
+/* File Tuple.java */
 
-package quadrupleheap;
+package labelheap;
 
 import java.io.*;
 import java.lang.*;
 import global.*;
 
 
-public class Quadruple implements GlobalConst{
+public class Tuple implements GlobalConst{
 
 
  /** 
@@ -48,12 +48,7 @@ public class Quadruple implements GlobalConst{
     * Creat a new tuple with length = max_size,tuple offset = 0.
     */
 
-  private EID Subject;
-  private PID Predicate;
-  private EID Object;
-  private double Value;
-
-  public Quadruple()
+  public  Tuple()
   {
        // Creat a new tuple
        data = new byte[max_size];
@@ -67,7 +62,7 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Quadruple(byte [] atuple, int offset, int length)
+   public Tuple(byte [] atuple, int offset, int length)
    {
       data = atuple;
       tuple_offset = offset;
@@ -79,9 +74,9 @@ public class Quadruple implements GlobalConst{
     * @param fromTuple   a byte array which contains the tuple
     * 
     */
-   public Quadruple(Quadruple fromTuple)
+   public Tuple(Tuple fromTuple)
    {
-       data = fromTuple.getQuadrupleByteArray();
+       data = fromTuple.getTupleByteArray();
        tuple_length = fromTuple.getLength();
        tuple_offset = 0;
        fldCnt = fromTuple.noOfFlds(); 
@@ -93,54 +88,21 @@ public class Quadruple implements GlobalConst{
     * Creat a new tuple with length = size,tuple offset = 0.
     */
  
-  public  Quadruple(int size)
+  public  Tuple(int size)
   {
        // Creat a new tuple
        data = new byte[size];
        tuple_offset = 0;
        tuple_length = size;     
   }
-
-  //! Maybe change these to use byte arrays? If this doesn't work
-  public EID getSubjectID(){
-    return Subject;
-  }
-
-  public PID getPredicateID(){
-    return Predicate;
-  }
-
-  public EID getObjectID(){
-    return Object;
-  }
-
-  public double getConfidence(){
-    return Value;
-  }
-
-  public void setSubjectID(EID subjecqid){
-    Subject = subjecqid;
-  }
-
-  public void setPredicateID(PID predicateID){
-    Predicate = predicateID;
-  }
-
-  public void setObjectID(EID objecqid){
-    Object = objecqid;
-  }
-
-  public void setConfidence(double confidence){
-    Value = confidence;
-  }
    
    /** Copy a tuple to the current tuple position
     *  you must make sure the tuple lengths must be equal
     * @param fromTuple the tuple being copied
     */
-   public void quadrupleCopy(Quadruple fromTuple)
+   public void tupleCopy(Tuple fromTuple)
    {
-       byte [] temparray = fromTuple.getQuadrupleByteArray();
+       byte [] temparray = fromTuple.getTupleByteArray();
        System.arraycopy(temparray, 0, data, tuple_offset, tuple_length);   
 //       fldCnt = fromTuple.noOfFlds(); 
 //       fldOffset = fromTuple.copyFldOffset(); 
@@ -152,7 +114,7 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public void quadrupleInit(byte [] atuple, int offset, int length)
+   public void tupleInit(byte [] atuple, int offset, int length)
    {
       data = atuple;
       tuple_offset = offset;
@@ -165,7 +127,7 @@ public class Quadruple implements GlobalConst{
   * @param	offset  the offset of the tuple ( =0 by default)
   * @param	length	the length of the tuple
   */
- public void quadrupleSet(byte [] record, int offset, int length)  
+ public void tupleSet(byte [] record, int offset, int length)  
   {
       System.arraycopy(record, offset, data, 0, length);
       tuple_offset = 0;
@@ -203,17 +165,11 @@ public class Quadruple implements GlobalConst{
     *		the length of byte[] = length of the tuple
     */
     
-  //  public byte [] getTupleByteArray() 
-  //  {
-  //      byte [] tuplecopy = new byte [tuple_length];
-  //      System.arraycopy(data, tuple_offset, tuplecopy, 0, tuple_length);
-  //      return tuplecopy;
-  //  }
-
-   public byte[] getQuadrupleByteArray(){
-    byte[] quadruplecopy = new byte[tuple_length];
-    System.arraycopy(data, tuple_offset, quadruplecopy, 0, tuple_length);
-    return quadruplecopy;
+   public byte [] getTupleByteArray() 
+   {
+       byte [] tuplecopy = new byte [tuple_length];
+       System.arraycopy(data, tuple_offset, tuplecopy, 0, tuple_length);
+       return tuplecopy;
    }
    
    /** return the data byte array 
@@ -329,7 +285,7 @@ public class Quadruple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Quadruple setIntFld(int fldNo, int val) 
+  public Tuple setIntFld(int fldNo, int val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
     if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -350,7 +306,7 @@ public class Quadruple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Quadruple setFloFld(int fldNo, float val) 
+  public Tuple setFloFld(int fldNo, float val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
    if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -372,7 +328,7 @@ public class Quadruple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-   public Quadruple setStrFld(int fldNo, String val) 
+   public Tuple setStrFld(int fldNo, String val) 
 		throws IOException, FieldNumberOutOfBoundException  
    {
      if ( (fldNo > 0) && (fldNo <= fldCnt))        
