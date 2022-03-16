@@ -48,7 +48,7 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = max_size,tuple offset = 0.
     */
 
-  public  Tuple()
+  public Tuple()
   {
        // Creat a new tuple
        data = new byte[max_size];
@@ -88,7 +88,7 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = size,tuple offset = 0.
     */
  
-  public  Tuple(int size)
+  public Tuple(int size)
   {
        // Creat a new tuple
        data = new byte[size];

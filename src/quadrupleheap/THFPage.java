@@ -334,10 +334,10 @@ public class THFPage extends Page
    * @exception IOException I/O errors
    * in C++ Status insertRecord(char *recPtr, int recLen, RID& rid)
    */
-  public RID insertRecord ( byte [] record)		
+  public QID insertRecord ( byte [] record)		
     throws IOException
     {
-      RID rid = new RID();
+      QID rid = new QID();
       
       int recLen = record.length;
       int spaceNeeded = recLen + SIZE_OF_SLOT;
@@ -402,7 +402,7 @@ public class THFPage extends Page
    * @exception IOException I/O errors
    * in C++ Status deleteRecord(const RID& rid)
    */
-  public void deleteRecord ( RID rid )
+  public void deleteRecord ( QID rid )
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -464,10 +464,10 @@ public class THFPage extends Page
    * in C++ Status firstRecord(RID& firstRid)
    * 
    */ 
-  public RID firstRecord() 
+  public QID firstRecord() 
     throws IOException
     {
-      RID rid = new RID();
+      QID rid = new QID();
       // find the first non-empty slot
       
       
@@ -501,10 +501,10 @@ public class THFPage extends Page
    * @exception  IOException I/O errors
    * in C++ Status nextRecord (RID curRid, RID& nextRid)
    */
-  public RID nextRecord (RID curRid) 
+  public QID nextRecord (QID curRid) 
     throws IOException 
     {
-      RID rid = new RID();
+      QID rid = new QID();
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
       int i=curRid.slotNo;
@@ -540,7 +540,7 @@ public class THFPage extends Page
    * @exception  	IOException I/O errors
    * @see 	Quadruple
    */
-  public Quadruple getRecord ( RID rid ) 
+  public Quadruple getRecord ( QID rid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -582,7 +582,7 @@ public class THFPage extends Page
    * @exception   IOException I/O errors
    * @see 	Quadruple
    */  
-  public Quadruple returnRecord ( RID rid )
+  public Quadruple returnRecord ( QID rid )
     throws IOException, 
 	   InvalidSlotNumberException
     {

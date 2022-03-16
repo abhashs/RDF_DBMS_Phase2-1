@@ -40,7 +40,7 @@ interface  Filetype {
   
 } // end of Filetype
 
-public class Heapfile implements Filetype,  GlobalConst {
+public class LabelHeapfile implements Filetype,  GlobalConst {
   
   
   PageId      _firstDirPageId;   // page number of header page
@@ -213,7 +213,7 @@ public class Heapfile implements Filetype,  GlobalConst {
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    */
-  public  Heapfile(String name) 
+  public LabelHeapfile(String name) 
     throws HFException, 
 	   HFBufMgrException,
 	   HFDiskMgrException,
