@@ -7,7 +7,7 @@ import java.lang.*;
 import global.*;
 
 
-public class Tuple implements GlobalConst{
+public class Quadruple implements GlobalConst{
 
 
  /** 
@@ -48,7 +48,7 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = max_size,tuple offset = 0.
     */
 
-  public  Tuple()
+  public  Quadruple()
   {
        // Creat a new tuple
        data = new byte[max_size];
@@ -62,7 +62,7 @@ public class Tuple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Tuple(byte [] atuple, int offset, int length)
+   public Quadruple(byte [] atuple, int offset, int length)
    {
       data = atuple;
       tuple_offset = offset;
@@ -74,7 +74,7 @@ public class Tuple implements GlobalConst{
     * @param fromTuple   a byte array which contains the tuple
     * 
     */
-   public Tuple(Tuple fromTuple)
+   public Quadruple(Quadruple fromTuple)
    {
        data = fromTuple.getTupleByteArray();
        tuple_length = fromTuple.getLength();
@@ -88,7 +88,7 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = size,tuple offset = 0.
     */
  
-  public  Tuple(int size)
+  public  Quadruple(int size)
   {
        // Creat a new tuple
        data = new byte[size];
@@ -100,7 +100,7 @@ public class Tuple implements GlobalConst{
     *  you must make sure the tuple lengths must be equal
     * @param fromTuple the tuple being copied
     */
-   public void tupleCopy(Tuple fromTuple)
+   public void tupleCopy(Quadruple fromTuple)
    {
        byte [] temparray = fromTuple.getTupleByteArray();
        System.arraycopy(temparray, 0, data, tuple_offset, tuple_length);   
@@ -285,7 +285,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Tuple setIntFld(int fldNo, int val) 
+  public Quadruple setIntFld(int fldNo, int val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
     if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -306,7 +306,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Tuple setFloFld(int fldNo, float val) 
+  public Quadruple setFloFld(int fldNo, float val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
    if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -328,7 +328,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-   public Tuple setStrFld(int fldNo, String val) 
+   public Quadruple setStrFld(int fldNo, String val) 
 		throws IOException, FieldNumberOutOfBoundException  
    {
      if ( (fldNo > 0) && (fldNo <= fldCnt))        

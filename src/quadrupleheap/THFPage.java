@@ -24,7 +24,7 @@ interface ConstSlot{
  * deletions are performed. 
  */
 
-public class HFPage extends Page 
+public class THFPage extends Page 
   implements ConstSlot, GlobalConst{
   
   
@@ -84,7 +84,7 @@ public class HFPage extends Page
    * Default constructor
    */
   
-  public HFPage ()   {  }
+  public THFPage ()   {  }
   
   /**
    * Constructor of class HFPage
@@ -92,7 +92,7 @@ public class HFPage extends Page
    * @param  page  the given page in Page type
    */
   
-  public HFPage(Page page)
+  public THFPage(Page page)
     {
       data = page.getpage();
     }
@@ -538,9 +538,9 @@ public class HFPage extends Page
    * @return 	a tuple contains the record
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception  	IOException I/O errors
-   * @see 	Tuple
+   * @see 	Quadruple
    */
-  public Tuple getRecord ( RID rid ) 
+  public Quadruple getRecord ( RID rid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -561,7 +561,7 @@ public class HFPage extends Page
 	  offset = getSlotOffset (slotNo);
 	  record = new byte[recLen];
 	  System.arraycopy(data, offset, record, 0, recLen);
-	  Tuple tuple = new Tuple(record, 0, recLen);
+	  Quadruple tuple = new Quadruple(record, 0, recLen);
 	  return tuple;
 	}
       
@@ -580,9 +580,9 @@ public class HFPage extends Page
    * @return      a tuple  with its length and offset in the byte array
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception   IOException I/O errors
-   * @see 	Tuple
+   * @see 	Quadruple
    */  
-  public Tuple returnRecord ( RID rid )
+  public Quadruple returnRecord ( RID rid )
     throws IOException, 
 	   InvalidSlotNumberException
     {
@@ -603,7 +603,7 @@ public class HFPage extends Page
 	{
 	  
 	  offset = getSlotOffset (slotNo);
-	  Tuple tuple = new Tuple(data, offset, recLen);
+	  Quadruple tuple = new Quadruple(data, offset, recLen);
 	  return tuple;
 	}
       

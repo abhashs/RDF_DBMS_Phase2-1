@@ -20,7 +20,7 @@ import diskmgr.*;
  * An object of type scan will always have pinned one directory page
  * of the heapfile.
  */
-public class Scan implements GlobalConst{
+public class TScan implements GlobalConst{
  
     /**
      * Note that one record in our way-cool HeapFile implementation is
@@ -29,13 +29,13 @@ public class Scan implements GlobalConst{
      */
 
     /** The heapfile we are using. */
-    private Heapfile  _hf;
+    private QuadrupleHeapFile  _hf;
 
     /** PageId of current directory page (which is itself an HFPage) */
     private PageId dirpageId = new PageId();
 
     /** pointer to in-core data of dirpageId (page is pinned) */
-    private HFPage dirpage = new HFPage();
+    private THFPage dirpage = new THFPage();
 
     /** record ID of the DataPageInfo struct (in the directory page) which
      * describes the data page where our current record lives.
@@ -46,7 +46,7 @@ public class Scan implements GlobalConst{
     private PageId datapageId = new PageId();
 
     /** in-core copy (pinned) of the same */
-    private HFPage datapage = new HFPage();
+    private THFPage datapage = new THFPage();
 
     /** record ID of the current record (from the current data page) */
     private RID userrid = new RID();
@@ -64,7 +64,7 @@ public class Scan implements GlobalConst{
      *
      * @param hf A HeapFile object
      */
-  public Scan(Heapfile hf) 
+  public TScan(QuadrupleHeapFile hf) 
     throws InvalidTupleSizeException,
 	   IOException
   {
@@ -81,11 +81,11 @@ public class Scan implements GlobalConst{
    * @param rid Record ID of the record
    * @return the Tuple of the retrieved record.
    */
-  public Tuple getNext(RID rid) 
+  public Quadruple getNext(RID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   {
-    Tuple recptrtuple = null;
+    Quadruple recptrtuple = null;
     
     if (nextUserStatus != true) {
         nextDataPage();
@@ -187,7 +187,7 @@ public class Scan implements GlobalConst{
      *
      * @param hf A HeapFile object
      */
-    private void init(Heapfile hf) 
+    private void init(QuadrupleHeapFile hf) 
       throws InvalidTupleSizeException,
 	     IOException
   {
@@ -249,7 +249,7 @@ public class Scan implements GlobalConst{
 	   IOException
   {
     DataPageInfo dpinfo;
-    Tuple        rectuple = null;
+    Quadruple        rectuple = null;
     Boolean      bst;
 
     /** copy data about first directory page */
@@ -259,7 +259,7 @@ public class Scan implements GlobalConst{
 
     /** get first directory page and pin it */
     	try {
-	   dirpage  = new HFPage();
+	   dirpage  = new THFPage();
        	   pinPage(dirpageId, (Page) dirpage, false);	   
        }
 
@@ -311,7 +311,7 @@ public class Scan implements GlobalConst{
         	
 	try {
 	
-           dirpage = new HFPage();
+           dirpage = new THFPage();
 	    pinPage(nextDirPageId, (Page )dirpage, false);
 	
 	    }
@@ -402,7 +402,7 @@ public class Scan implements GlobalConst{
     
     boolean nextDataPageStatus;
     PageId nextDirPageId = new PageId();
-    Tuple rectuple = null;
+    Quadruple rectuple = null;
 
   // ASSERTIONS:
   // - this->dirpageId has Id of current directory page
@@ -439,7 +439,7 @@ public class Scan implements GlobalConst{
 	
 	// pin first data page
 	try {
-	  datapage  = new HFPage();
+	  datapage  = new THFPage();
 	  pinPage(datapageId, (Page) datapage, false);
 	}
 	catch (Exception e){
@@ -507,7 +507,7 @@ public class Scan implements GlobalConst{
 	dirpageId = nextDirPageId;
 	
  	try { 
-	  dirpage  = new HFPage();
+	  dirpage  = new THFPage();
 	  pinPage(dirpageId, (Page)dirpage, false);
 	}
 	
@@ -552,7 +552,7 @@ public class Scan implements GlobalConst{
 	datapageId.pid = dpinfo.pageId.pid;
 	
  	try {
-	  datapage = new HFPage();
+	  datapage = new THFPage();
 	  pinPage(dpinfo.pageId, (Page) datapage, false);
 	}
 	
