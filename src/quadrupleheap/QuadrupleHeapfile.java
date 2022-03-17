@@ -141,8 +141,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 		  throw e;
 		}
 	      
-	      
-	      
 	      // ASSERTIONS:
 	      // - currentDataPage, currentDataPageRid, dpinfo valid
 	      // - currentDataPage pinned
@@ -214,7 +212,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    */
-  public  QuadrupleHeapfile(String name) 
+  public QuadrupleHeapfile(String name) 
     throws HFException, 
 	   HFBufMgrException,
 	   HFDiskMgrException,
