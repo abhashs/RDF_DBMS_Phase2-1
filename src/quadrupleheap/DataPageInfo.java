@@ -74,7 +74,7 @@ class DataPageInfo implements GlobalConst{
    *  it will make a copy of the data in the tuple
    * @param atuple: the input tuple
    */
-  public DataPageInfo(Quadruple _atuple)
+  public DataPageInfo(Tuple _atuple)
        throws InvalidTupleSizeException, IOException
   {   
      // need check _atuple size == this.size ?otherwise, throw new exception

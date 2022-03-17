@@ -403,7 +403,7 @@ public class THFPage extends Page
    * @exception IOException I/O errors
    * in C++ Status deleteRecord(const RID& rid)
    */
-  public void deleteRecord ( QID rid )
+  public void deleteRecord ( RID rid )
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -502,13 +502,13 @@ public class THFPage extends Page
    * @exception  IOException I/O errors
    * in C++ Status nextRecord (RID curRid, RID& nextRid)
    */
-  public RID nextRecord (RID curQid) 
+  public RID nextRecord (RID curRid) 
     throws IOException 
     {
       RID rid = new RID();
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
-      int i=curQid.slotNo;
+      int i=curRid.slotNo;
       short length; 
       
       // find the next non-empty slot
@@ -539,9 +539,9 @@ public class THFPage extends Page
    * @return 	a tuple contains the record
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception  	IOException I/O errors
-   * @see 	Quadruple
+   * @see 	Tuple
    */
-  public Tuple getRecord(RID rid ) 
+  public Tuple getRecord ( RID rid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -562,7 +562,7 @@ public class THFPage extends Page
 	  offset = getSlotOffset (slotNo);
 	  record = new byte[recLen];
 	  System.arraycopy(data, offset, record, 0, recLen);
-	  Quadruple tuple = new Quadruple(record, 0);
+	  Tuple tuple = new Tuple(record, 0, recLen);
 	  return tuple;
 	}
       
@@ -581,7 +581,7 @@ public class THFPage extends Page
    * @return      a tuple  with its length and offset in the byte array
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception   IOException I/O errors
-   * @see 	Quadruple
+   * @see 	Tuple
    */  
   public Tuple returnRecord ( RID rid )
     throws IOException, 
@@ -604,8 +604,6 @@ public class THFPage extends Page
 	{
 	  
 	  offset = getSlotOffset (slotNo);
-
-    // Originally new Tuple(data, offset, recLen)
 	  Tuple tuple = new Tuple(data, offset, recLen);
 	  return tuple;
 	}
