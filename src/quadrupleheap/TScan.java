@@ -41,7 +41,7 @@ public class TScan implements GlobalConst{
     /** record ID of the DataPageInfo struct (in the directory page) which
      * describes the data page where our current record lives.
      */
-    private RID datapageRid = new RID();
+    private QID datapageRid = new QID();
 
     /** the actual PageId of the data page with the current record */
     private PageId datapageId = new PageId();
@@ -50,7 +50,7 @@ public class TScan implements GlobalConst{
     private THFPage datapage = new THFPage();
 
     /** record ID of the current record (from the current data page) */
-    private RID userrid = new RID();
+    private QID userrid = new QID();
 
     /** Status of next user status */
     private boolean nextUserStatus;
@@ -82,11 +82,11 @@ public class TScan implements GlobalConst{
    * @param rid Record ID of the record
    * @return the Tuple of the retrieved record.
    */
-  public Tuple getNext(RID rid) 
+  public Quadruple getNext(QID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   {
-    Tuple recptrtuple = null;
+    Quadruple recptrtuple = null;
     
     if (nextUserStatus != true) {
         nextDataPage();
@@ -123,11 +123,11 @@ public class TScan implements GlobalConst{
      * @return 	true if successful, 
      *			false otherwise.
      */
-  public boolean position(RID rid) 
+  public boolean position(QID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   { 
-    RID    nxtrid = new RID();
+    QID    nxtrid = new QID();
     boolean bst;
 
     bst = peekNext(nxtrid);
@@ -250,7 +250,7 @@ public class TScan implements GlobalConst{
 	   IOException
   {
     DataPageInfo dpinfo;
-    Tuple        rectuple = null;
+    Quadruple        rectuple = null;
     Boolean      bst;
 
     /** copy data about first directory page */
@@ -403,7 +403,7 @@ public class TScan implements GlobalConst{
     
     boolean nextDataPageStatus;
     PageId nextDirPageId = new PageId();
-    Tuple rectuple = null;
+    Quadruple rectuple = null;
 
   // ASSERTIONS:
   // - this->dirpageId has Id of current directory page
@@ -579,7 +579,7 @@ public class TScan implements GlobalConst{
   }
 
 
-  private boolean peekNext(RID rid) {
+  private boolean peekNext(QID rid) {
     
     rid.pageNo.pid = userrid.pageNo.pid;
     rid.slotNo = userrid.slotNo;
@@ -591,11 +591,11 @@ public class TScan implements GlobalConst{
   /** Move to the next record in a sequential scan.
    * Also returns the RID of the (new) current record.
    */
-  private boolean mvNext(RID rid) 
+  private boolean mvNext(QID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   {
-    RID nextrid;
+    QID nextrid;
     boolean status;
 
     if (datapage == null)

@@ -7,7 +7,7 @@ import java.lang.*;
 import global.*;
 
 
-public class Tuple implements GlobalConst{
+public class Label implements GlobalConst{
 
 
  /** 
@@ -48,7 +48,7 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = max_size,tuple offset = 0.
     */
 
-  public Tuple()
+  public Label()
   {
        // Creat a new tuple
        data = new byte[max_size];
@@ -62,7 +62,7 @@ public class Tuple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Tuple(byte [] atuple, int offset, int length)
+   public Label(byte [] atuple, int offset, int length)
    {
       data = atuple;
       tuple_offset = offset;
@@ -74,7 +74,7 @@ public class Tuple implements GlobalConst{
     * @param fromTuple   a byte array which contains the tuple
     * 
     */
-   public Tuple(Tuple fromTuple)
+   public Label(Label fromTuple)
    {
        data = fromTuple.getTupleByteArray();
        tuple_length = fromTuple.getLength();
@@ -88,19 +88,27 @@ public class Tuple implements GlobalConst{
     * Creat a new tuple with length = size,tuple offset = 0.
     */
  
-  public Tuple(int size)
+  public Label(int size)
   {
        // Creat a new tuple
        data = new byte[size];
        tuple_offset = 0;
        tuple_length = size;     
   }
+
+  public String getLabel(){
+    return new String(data);
+  }
+
+  public void setLabel(String label){
+    data = label.getBytes();
+  }
    
    /** Copy a tuple to the current tuple position
     *  you must make sure the tuple lengths must be equal
     * @param fromTuple the tuple being copied
     */
-   public void tupleCopy(Tuple fromTuple)
+   public void tupleCopy(Label fromTuple)
    {
        byte [] temparray = fromTuple.getTupleByteArray();
        System.arraycopy(temparray, 0, data, tuple_offset, tuple_length);   
@@ -285,7 +293,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Tuple setIntFld(int fldNo, int val) 
+  public Label setIntFld(int fldNo, int val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
     if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -306,7 +314,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-  public Tuple setFloFld(int fldNo, float val) 
+  public Label setFloFld(int fldNo, float val) 
   	throws IOException, FieldNumberOutOfBoundException
   { 
    if ( (fldNo > 0) && (fldNo <= fldCnt))
@@ -328,7 +336,7 @@ public class Tuple implements GlobalConst{
    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
    */
 
-   public Tuple setStrFld(int fldNo, String val) 
+   public Label setStrFld(int fldNo, String val) 
 		throws IOException, FieldNumberOutOfBoundException  
    {
      if ( (fldNo > 0) && (fldNo <= fldCnt))        
@@ -465,59 +473,61 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
  public void print(AttrType type[])
     throws IOException 
  {
-  int i, val;
-  float fval;
-  String sval;
 
-  System.out.print("[");
-  for (i=0; i< fldCnt-1; i++)
-   {
-    switch(type[i].attrType) {
+  System.out.println("[ " + new String(data) + " ]");
+//   int i, val;
+//   float fval;
+//   String sval;
 
-   case AttrType.attrInteger:
-     val = Convert.getIntValue(fldOffset[i], data);
-     System.out.print(val);
-     break;
+//   System.out.print("[");
+//   for (i=0; i< fldCnt-1; i++)
+//    {
+//     switch(type[i].attrType) {
 
-   case AttrType.attrReal:
-     fval = Convert.getFloValue(fldOffset[i], data);
-     System.out.print(fval);
-     break;
+//    case AttrType.attrInteger:
+//      val = Convert.getIntValue(fldOffset[i], data);
+//      System.out.print(val);
+//      break;
 
-   case AttrType.attrString:
-     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
-     System.out.print(sval);
-     break;
+//    case AttrType.attrReal:
+//      fval = Convert.getFloValue(fldOffset[i], data);
+//      System.out.print(fval);
+//      break;
+
+//    case AttrType.attrString:
+//      sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
+//      System.out.print(sval);
+//      break;
   
-   case AttrType.attrNull:
-   case AttrType.attrSymbol:
-     break;
-   }
-   System.out.print(", ");
- } 
+//    case AttrType.attrNull:
+//    case AttrType.attrSymbol:
+//      break;
+//    }
+//    System.out.print(", ");
+//  } 
  
- switch(type[fldCnt-1].attrType) {
+//  switch(type[fldCnt-1].attrType) {
 
-   case AttrType.attrInteger:
-     val = Convert.getIntValue(fldOffset[i], data);
-     System.out.print(val);
-     break;
+//    case AttrType.attrInteger:
+//      val = Convert.getIntValue(fldOffset[i], data);
+//      System.out.print(val);
+//      break;
 
-   case AttrType.attrReal:
-     fval = Convert.getFloValue(fldOffset[i], data);
-     System.out.print(fval);
-     break;
+//    case AttrType.attrReal:
+//      fval = Convert.getFloValue(fldOffset[i], data);
+//      System.out.print(fval);
+//      break;
 
-   case AttrType.attrString:
-     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
-     System.out.print(sval);
-     break;
+//    case AttrType.attrString:
+//      sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
+//      System.out.print(sval);
+//      break;
 
-   case AttrType.attrNull:
-   case AttrType.attrSymbol:
-     break;
-   }
-   System.out.println("]");
+//    case AttrType.attrNull:
+//    case AttrType.attrSymbol:
+//      break;
+//    }
+//    System.out.println("]");
 
  }
 

@@ -89,7 +89,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
   private boolean  _findDataPage( QID rid,
 				  PageId dirPageId, THFPage dirpage,
 				  PageId dataPageId, THFPage datapage,
-				  RID rpDataPageRid) 
+				  QID rpDataPageRid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   HFException,
@@ -101,14 +101,14 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       
       THFPage currentDirPage = new THFPage();
       THFPage currentDataPage = new THFPage();
-      RID currentDataPageRid = new RID();
+      QID currentDataPageRid = new QID();
       PageId nextDirPageId = new PageId();
       // datapageId is stored in dpinfo.pageId 
       
       
       pinPage(currentDirPageId, currentDirPage, false/*read disk*/);
       
-      Tuple atuple = new Tuple();
+      Quadruple atuple = new Quadruple();
       
       while (currentDirPageId.pid != INVALID_PAGE)
 	{// Start While01
@@ -318,8 +318,8 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	{
 	   pinPage(currentDirPageId, currentDirPage, false);
 	   
-	   RID rid = new RID();
-	   Tuple atuple;
+	   QID rid = new QID();
+	   Quadruple atuple;
 	   for (rid = currentDirPage.firstRecord();
 	        rid != null;	// rid==NULL means no more record
 	        rid = currentDirPage.nextRecord(rid))
@@ -363,7 +363,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
    *
    * @return the rid of the record
    */
-  public RID insertRecord(byte[] recPtr) 
+  public QID insertQuadruple(byte[] recPtr) 
     throws InvalidSlotNumberException,  
 	   InvalidTupleSizeException,
 	   SpaceNotAvailableException,
@@ -375,7 +375,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       int dpinfoLen = 0;	
       int recLen = recPtr.length;
       boolean found;
-      RID currentDataPageRid = new RID();
+      QID currentDataPageRid = new QID();
       Page pageinbuffer = new Page();
       THFPage currentDirPage = new THFPage();
       THFPage currentDataPage = new THFPage();
@@ -387,7 +387,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       pinPage(currentDirPageId, currentDirPage, false/*Rdisk*/);
       
       found = false;
-      Tuple atuple;
+      Quadruple atuple;
       DataPageInfo dpinfo = new DataPageInfo();
       while (found == false)
 	{ //Start While01
@@ -457,10 +457,10 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 		  
 		  atuple = dpinfo.convertToTuple();
 		  
-		  byte [] tmpData = atuple.getTupleByteArray();
+		  byte [] tmpData = atuple.getQuadrupleByteArray();
 		  currentDataPageRid = currentDirPage.insertRecord(tmpData);
 		  
-		  RID tmprid = currentDirPage.firstRecord();
+		  QID tmprid = currentDirPage.firstRecord();
 		  
 		  
 		  // need catch error here!
@@ -572,7 +572,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	throw new HFException(null, "can't find Data page");
       
       
-      RID rid;
+      QID rid;
       rid = currentDataPage.insertRecord(recPtr);
       
       dpinfo.recct++;
@@ -624,7 +624,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       PageId currentDirPageId = new PageId();
       THFPage currentDataPage = new THFPage();
       PageId currentDataPageId = new PageId();
-      RID currentDataPageRid = new RID();
+      QID currentDataPageRid = new QID();
       
       status = _findDataPage(qid,
 			     currentDirPageId, currentDirPage, 
@@ -638,7 +638,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       // - currentDataPage, currentDataPageid valid and pinned
       
       // get datapageinfo from the current directory page:
-      Tuple atuple;	
+      Quadruple atuple;	
       
       atuple = currentDirPage.returnRecord(currentDataPageRid);
       DataPageInfo pdpinfo = new DataPageInfo(atuple);
@@ -676,7 +676,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	  
 	  // delete corresponding DataPageInfo-entry on the directory page:
 	  // currentDataPageRid points to datapage (from for loop above)
-	  
+	 
 	  currentDirPage.deleteRecord(currentDataPageRid);
 	  
 	  
@@ -758,7 +758,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
    * @exception Exception other exception
    * @return ture:update success   false: can't find the record
    */
-  public boolean updateRecord(RID rid, Tuple newtuple) 
+  public boolean updateQuadruple(QID rid, Quadruple newtuple) 
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
 	   InvalidTupleSizeException,
@@ -772,7 +772,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       PageId currentDirPageId = new PageId();
       THFPage dataPage = new THFPage();
       PageId currentDataPageId = new PageId();
-      RID currentDataPageRid = new RID();
+      QID currentDataPageRid = new QID();
       
       status = _findDataPage(rid,
 			     currentDirPageId, dirPage, 
@@ -780,7 +780,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 			     currentDataPageRid);
       
       if(status != true) return status;	// record not found
-      Tuple atuple = new Tuple();
+      Quadruple atuple = new Quadruple();
       atuple = dataPage.returnRecord(rid);
       
       // Assume update a record with a record whose length is equal to
@@ -796,7 +796,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	}
 
       // new copy of this record fits in old space;
-      atuple.tupleCopy(newtuple);
+      atuple.quadrupleCopy(newtuple);
       unpinPage(currentDataPageId, true /* = DIRTY */);
       
       unpinPage(currentDirPageId, false /*undirty*/);
@@ -819,7 +819,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
    *
    * @return a Tuple. if Tuple==null, no more tuple
    */
-  public  Tuple getRecord(RID rid) 
+  public Quadruple getQuadruple(QID rid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   HFException, 
@@ -832,7 +832,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       PageId currentDirPageId = new PageId();
       THFPage dataPage = new THFPage();
       PageId currentDataPageId = new PageId();
-      RID currentDataPageRid = new RID();
+      QID currentDataPageRid = new QID();
       
       status = _findDataPage(rid,
 			     currentDirPageId, dirPage, 
@@ -841,7 +841,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       
       if(status != true) return null; // record not found 
       
-      Tuple atuple = new Tuple();
+      Quadruple atuple = new Quadruple();
       atuple = dataPage.getRecord(rid);
       
       /*
@@ -905,12 +905,12 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       nextDirPageId.pid = 0;
       Page pageinbuffer = new Page();
       THFPage currentDirPage =  new THFPage();
-      Tuple atuple;
+      Quadruple atuple;
       
       pinPage(currentDirPageId, currentDirPage, false);
       //currentDirPage.openHFpage(pageinbuffer);
       
-      RID rid = new RID();
+      QID rid = new QID();
       while(currentDirPageId.pid != INVALID_PAGE)
 	{      
 	  for(rid = currentDirPage.firstRecord();

@@ -79,8 +79,7 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Quadruple(byte [] aquadruple, int offset) throws IOException
-   {
+  public Quadruple(byte[] aquadruple, int offset) throws IOException {
       data = aquadruple;
       quadruple_offset = offset;
       quadruple_length = QUADRUPLE_SIZE;
@@ -89,8 +88,21 @@ public class Quadruple implements GlobalConst{
       setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
       setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
       setConfidence(Convert.getFloValue(offset + 24, aquadruple));
+  }
 
-    //  fldCnt = getShortValue(offset, data);
+   public Quadruple(byte [] aquadruple, int offset, int size) throws IOException
+   {
+      data = aquadruple;
+      quadruple_offset = offset;
+      quadruple_length = size;
+
+      if (size >= 28){
+        setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
+        setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
+        setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+        setConfidence(Convert.getFloValue(offset + 24, aquadruple));
+      }
+
    }
   
    /** Constructor(used as tuple copy)
@@ -238,7 +250,7 @@ public class Quadruple implements GlobalConst{
   //  }
 
    public byte[] getQuadrupleByteArray(){
-    byte[] quadruplecopy = new byte[QUADRUPLE_SIZE];
+    byte[] quadruplecopy = new byte[quadruple_length];
     System.arraycopy(data, quadruple_offset, quadruplecopy, 0, quadruple_length);
     return quadruplecopy;
    }

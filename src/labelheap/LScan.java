@@ -20,7 +20,7 @@ import diskmgr.*;
  * An object of type scan will always have pinned one directory page
  * of the heapfile.
  */
-public class Scan implements GlobalConst{
+public class LScan implements GlobalConst{
  
     /**
      * Note that one record in our way-cool HeapFile implementation is
@@ -29,27 +29,27 @@ public class Scan implements GlobalConst{
      */
 
     /** The heapfile we are using. */
-    private Heapfile  _hf;
+    private LabelHeapfile  _hf;
 
     /** PageId of current directory page (which is itself an HFPage) */
     private PageId dirpageId = new PageId();
 
     /** pointer to in-core data of dirpageId (page is pinned) */
-    private HFPage dirpage = new HFPage();
+    private LHFPage dirpage = new LHFPage();
 
     /** record ID of the DataPageInfo struct (in the directory page) which
      * describes the data page where our current record lives.
      */
-    private RID datapageRid = new RID();
+    private LID datapageRid = new LID();
 
     /** the actual PageId of the data page with the current record */
     private PageId datapageId = new PageId();
 
     /** in-core copy (pinned) of the same */
-    private HFPage datapage = new HFPage();
+    private LHFPage datapage = new LHFPage();
 
     /** record ID of the current record (from the current data page) */
-    private RID userrid = new RID();
+    private LID userrid = new LID();
 
     /** Status of next user status */
     private boolean nextUserStatus;
@@ -64,7 +64,7 @@ public class Scan implements GlobalConst{
      *
      * @param hf A HeapFile object
      */
-  public Scan(Heapfile hf) 
+  public LScan(LabelHeapfile hf) 
     throws InvalidTupleSizeException,
 	   IOException
   {
@@ -81,11 +81,11 @@ public class Scan implements GlobalConst{
    * @param rid Record ID of the record
    * @return the Tuple of the retrieved record.
    */
-  public Tuple getNext(RID rid) 
+  public Label getNext(LID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   {
-    Tuple recptrtuple = null;
+    Label recptrtuple = null;
     
     if (nextUserStatus != true) {
         nextDataPage();
@@ -122,11 +122,11 @@ public class Scan implements GlobalConst{
      * @return 	true if successful, 
      *			false otherwise.
      */
-  public boolean position(RID rid) 
+  public boolean position(LID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   { 
-    RID    nxtrid = new RID();
+    LID    nxtrid = new LID();
     boolean bst;
 
     bst = peekNext(nxtrid);
@@ -187,7 +187,7 @@ public class Scan implements GlobalConst{
      *
      * @param hf A HeapFile object
      */
-    private void init(Heapfile hf) 
+    private void init(LabelHeapfile hf) 
       throws InvalidTupleSizeException,
 	     IOException
   {
@@ -249,7 +249,7 @@ public class Scan implements GlobalConst{
 	   IOException
   {
     DataPageInfo dpinfo;
-    Tuple        rectuple = null;
+    Label        rectuple = null;
     Boolean      bst;
 
     /** copy data about first directory page */
@@ -259,7 +259,7 @@ public class Scan implements GlobalConst{
 
     /** get first directory page and pin it */
     	try {
-	   dirpage  = new HFPage();
+	   dirpage  = new LHFPage();
        	   pinPage(dirpageId, (Page) dirpage, false);	   
        }
 
@@ -311,7 +311,7 @@ public class Scan implements GlobalConst{
         	
 	try {
 	
-           dirpage = new HFPage();
+           dirpage = new LHFPage();
 	    pinPage(nextDirPageId, (Page )dirpage, false);
 	
 	    }
@@ -402,7 +402,7 @@ public class Scan implements GlobalConst{
     
     boolean nextDataPageStatus;
     PageId nextDirPageId = new PageId();
-    Tuple rectuple = null;
+    Label rectuple = null;
 
   // ASSERTIONS:
   // - this->dirpageId has Id of current directory page
@@ -439,7 +439,7 @@ public class Scan implements GlobalConst{
 	
 	// pin first data page
 	try {
-	  datapage  = new HFPage();
+	  datapage  = new LHFPage();
 	  pinPage(datapageId, (Page) datapage, false);
 	}
 	catch (Exception e){
@@ -507,7 +507,7 @@ public class Scan implements GlobalConst{
 	dirpageId = nextDirPageId;
 	
  	try { 
-	  dirpage  = new HFPage();
+	  dirpage  = new LHFPage();
 	  pinPage(dirpageId, (Page)dirpage, false);
 	}
 	
@@ -552,7 +552,7 @@ public class Scan implements GlobalConst{
 	datapageId.pid = dpinfo.pageId.pid;
 	
  	try {
-	  datapage = new HFPage();
+	  datapage = new LHFPage();
 	  pinPage(dpinfo.pageId, (Page) datapage, false);
 	}
 	
@@ -578,7 +578,7 @@ public class Scan implements GlobalConst{
   }
 
 
-  private boolean peekNext(RID rid) {
+  private boolean peekNext(LID rid) {
     
     rid.pageNo.pid = userrid.pageNo.pid;
     rid.slotNo = userrid.slotNo;
@@ -590,11 +590,11 @@ public class Scan implements GlobalConst{
   /** Move to the next record in a sequential scan.
    * Also returns the RID of the (new) current record.
    */
-  private boolean mvNext(RID rid) 
+  private boolean mvNext(LID rid) 
     throws InvalidTupleSizeException,
 	   IOException
   {
-    RID nextrid;
+    LID nextrid;
     boolean status;
 
     if (datapage == null)
