@@ -4,6 +4,7 @@ import java.io.*;
 import diskmgr.*;
 import bufmgr.*;
 import global.*;
+import heap.Tuple;
 
 /**  This heapfile implementation is directory-based. We maintain a
  *  directory of info about the data pages (which are of type HFPage
@@ -388,7 +389,7 @@ public class QuadrupleHeapFile implements Filetype,  GlobalConst {
       pinPage(currentDirPageId, currentDirPage, false/*Rdisk*/);
       
       found = false;
-      Quadruple atuple;
+      Tuple atuple;
       DataPageInfo dpinfo = new DataPageInfo();
       while (found == false)
 	{ //Start While01
@@ -453,7 +454,6 @@ public class QuadrupleHeapFile implements Filetype,  GlobalConst {
 		  
 		  // currentDataPage is pinned: insert its record
 		  // calling a HFPage function
-		  
 		  
 		  
 		  atuple = dpinfo.convertToTuple();
@@ -611,7 +611,7 @@ public class QuadrupleHeapFile implements Filetype,  GlobalConst {
    *
    * @return true record deleted  false:record not found
    */
-  public boolean deleteRecord(QID rid)  
+  public boolean deleteQuadruple(QID rid)  
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   HFException, 

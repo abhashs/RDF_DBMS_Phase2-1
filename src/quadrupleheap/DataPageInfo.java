@@ -5,6 +5,8 @@ package quadrupleheap;
 
 
 import global.*;
+import heap.Tuple;
+
 import java.io.*;
 
 /** DataPageInfo class : the type of records stored on a directory page.
@@ -97,7 +99,8 @@ class DataPageInfo implements GlobalConst{
    *  
    *
    */
-  public Quadruple convertToTuple()
+  //! Maybe Import Tuple?
+  public Tuple convertToTuple()
        throws IOException
   {
 
@@ -108,7 +111,7 @@ class DataPageInfo implements GlobalConst{
 
 
     // 2) creat a Tuple object using this array
-    Quadruple atuple = new Quadruple(data, offset, size); 
+    Tuple atuple = new Tuple(data, offset, size); 
  
     // 3) return tuple object
     return atuple;

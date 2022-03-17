@@ -1,4 +1,4 @@
-/* File HFPage.java */
+/* File THFPage.java */
 
 package quadrupleheap;
 
@@ -6,6 +6,7 @@ import java.io.*;
 import java.lang.*;
 
 import global.*;
+import heap.Tuple;
 import diskmgr.*;
 
 
@@ -334,10 +335,10 @@ public class THFPage extends Page
    * @exception IOException I/O errors
    * in C++ Status insertRecord(char *recPtr, int recLen, RID& rid)
    */
-  public QID insertRecord ( byte [] record)		
+  public RID insertRecord ( byte [] record)		
     throws IOException
     {
-      QID rid = new QID();
+      RID rid = new RID();
       
       int recLen = record.length;
       int spaceNeeded = recLen + SIZE_OF_SLOT;
@@ -464,10 +465,10 @@ public class THFPage extends Page
    * in C++ Status firstRecord(RID& firstRid)
    * 
    */ 
-  public QID firstRecord() 
+  public RID firstRecord() 
     throws IOException
     {
-      QID rid = new QID();
+      RID rid = new RID();
       // find the first non-empty slot
       
       
@@ -501,13 +502,13 @@ public class THFPage extends Page
    * @exception  IOException I/O errors
    * in C++ Status nextRecord (RID curRid, RID& nextRid)
    */
-  public QID nextRecord (QID curRid) 
+  public RID nextRecord (RID curQid) 
     throws IOException 
     {
-      QID rid = new QID();
+      RID rid = new RID();
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
-      int i=curRid.slotNo;
+      int i=curQid.slotNo;
       short length; 
       
       // find the next non-empty slot
@@ -540,7 +541,7 @@ public class THFPage extends Page
    * @exception  	IOException I/O errors
    * @see 	Quadruple
    */
-  public Quadruple getRecord ( QID rid ) 
+  public Tuple getRecord(RID rid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -561,7 +562,7 @@ public class THFPage extends Page
 	  offset = getSlotOffset (slotNo);
 	  record = new byte[recLen];
 	  System.arraycopy(data, offset, record, 0, recLen);
-	  Quadruple tuple = new Quadruple(record, 0, recLen);
+	  Quadruple tuple = new Quadruple(record, 0);
 	  return tuple;
 	}
       
@@ -582,7 +583,7 @@ public class THFPage extends Page
    * @exception   IOException I/O errors
    * @see 	Quadruple
    */  
-  public Quadruple returnRecord ( QID rid )
+  public Tuple returnRecord ( RID rid )
     throws IOException, 
 	   InvalidSlotNumberException
     {
@@ -603,7 +604,9 @@ public class THFPage extends Page
 	{
 	  
 	  offset = getSlotOffset (slotNo);
-	  Quadruple tuple = new Quadruple(data, offset, recLen);
+
+    // Originally new Tuple(data, offset, recLen)
+	  Tuple tuple = new Tuple(data, offset, recLen);
 	  return tuple;
 	}
       

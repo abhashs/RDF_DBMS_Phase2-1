@@ -9,6 +9,12 @@ import global.*;
 
 public class Quadruple implements GlobalConst{
 
+  static LID getLIDfromByteArray(byte[] array, int position) throws IOException{
+    PageId pageNo = new PageId(Convert.getIntValue(position, array));
+    int slotNo = Convert.getIntValue(position + 4, array);
+    LID newLID = new LID(pageNo, slotNo);
+    return newLID;
+  }
 
  /** 
   * Maximum size of any tuple
@@ -60,6 +66,10 @@ public class Quadruple implements GlobalConst{
        data = new byte[QUADRUPLE_SIZE];
        quadruple_offset = 0;
        quadruple_length = QUADRUPLE_SIZE;
+       Subject = new EID();
+       Predicate = new PID();
+       Object = new EID();
+       Value = (float) 0.0; //!
   }
    
    /** Constructor
@@ -68,39 +78,36 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Quadruple(byte [] aquadruple, int offset)
+   public Quadruple(byte [] aquadruple, int offset) throws IOException
    {
       data = aquadruple;
       quadruple_offset = offset;
       quadruple_length = QUADRUPLE_SIZE;
+
+      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+      setConfidence(Convert.getFloValue(offset + 24, aquadruple));
+
     //  fldCnt = getShortValue(offset, data);
    }
-   
+  
    /** Constructor(used as tuple copy)
     * @param fromTuple   a byte array which contains the tuple
     * 
     */
-   public Quadruple(Quadruple fromQuadruple)
+   public Quadruple(Quadruple fromQuadruple) throws IOException
    {
-       data = fromQuadruple.getQuadrupleByteArray();
-       quadruple_length = fromQuadruple.getLength();
-       quadruple_offset = 0;
-       fldCnt = fromQuadruple.noOfFlds(); 
-       fldOffset = fromQuadruple.copyFldOffset(); 
+      data = fromQuadruple.getQuadrupleByteArray();
+      quadruple_length = fromQuadruple.getLength();
+      quadruple_offset = 0;
+      
+      setSubjectID(fromQuadruple.getSubjectID());
+      setPredicateID(fromQuadruple.getPredicateID());
+      setObjectID(fromQuadruple.getObjectID());
+      setConfidence(fromQuadruple.getConfidence());
    }
 
-   /**  
-    * Class constructor
-    * Creat a new tuple with length = size,tuple offset = 0.
-    */
- 
-  public  Quadruple(int size)
-  {
-       // Creat a new tuple
-       data = new byte[size];
-       quadruple_offset = 0;
-       quadruple_length = size;     
-  }
 
   //! Maybe change these to use byte arrays? If this doesn't work
   public EID getSubjectID(){
@@ -119,7 +126,6 @@ public class Quadruple implements GlobalConst{
     return Value;
   }
 
-  //TODO update bytearray from set
   public void setSubjectID(EID subjectQID) throws IOException{
     Subject = subjectQID;
     Subject.writeToByteArray(data, 0);
@@ -137,7 +143,7 @@ public class Quadruple implements GlobalConst{
 
   public void setConfidence(float confidence) throws IOException{
     Value = confidence;
-    Object.writeToByteArray(data, 24);
+    Convert.setFloValue(confidence, 24, data);
   }
    
    /** Copy a tuple to the current tuple position
@@ -162,11 +168,16 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public void quadrupleInit(byte [] atuple, int offset, int length)
+   public void quadrupleInit(byte [] aquadruple, int offset) throws IOException
    {
-      data = atuple;
+      data = aquadruple;
       quadruple_offset = offset;
-      quadruple_length = length;
+      quadruple_length = QUADRUPLE_SIZE;
+
+      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+      setConfidence(Convert.getFloValue(offset + 24, aquadruple));
    }
 
  /**
@@ -175,11 +186,16 @@ public class Quadruple implements GlobalConst{
   * @param	offset  the offset of the tuple ( =0 by default)
   * @param	length	the length of the tuple
   */
- public void quadrupleSet(byte [] record, int offset, int length)  
+ public void quadrupleSet(byte[] fromQuadruple, int offset) throws IOException
   {
-      System.arraycopy(record, offset, data, 0, length);
+      System.arraycopy(fromQuadruple, offset, data, 0, QUADRUPLE_SIZE);
       quadruple_offset = 0;
-      quadruple_length = length;
+      quadruple_length = QUADRUPLE_SIZE;
+
+      setSubjectID(Quadruple.getLIDfromByteArray(fromQuadruple, 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(fromQuadruple, 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(fromQuadruple, 16).returnEID());
+      setConfidence(Convert.getFloValue(offset + 24, fromQuadruple));
   }
   
  /** get the length of a tuple, call this method if you did not 
@@ -516,63 +532,18 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
   * @param type  the types in the tuple
   * @Exception IOException I/O exception
   */
- public void print(AttrType type[])
+ public void print()
     throws IOException 
  {
   int i, val;
   float fval;
   String sval;
 
-  System.out.print("[");
-  for (i=0; i< fldCnt-1; i++)
-   {
-    switch(type[i].attrType) {
 
-   case AttrType.attrInteger:
-     val = Convert.getIntValue(fldOffset[i], data);
-     System.out.print(val);
-     break;
-
-   case AttrType.attrReal:
-     fval = Convert.getFloValue(fldOffset[i], data);
-     System.out.print(fval);
-     break;
-
-   case AttrType.attrString:
-     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
-     System.out.print(sval);
-     break;
-  
-   case AttrType.attrNull:
-   case AttrType.attrSymbol:
-     break;
-   }
-   System.out.print(", ");
- } 
- 
- switch(type[fldCnt-1].attrType) {
-
-   case AttrType.attrInteger:
-     val = Convert.getIntValue(fldOffset[i], data);
-     System.out.print(val);
-     break;
-
-   case AttrType.attrReal:
-     fval = Convert.getFloValue(fldOffset[i], data);
-     System.out.print(fval);
-     break;
-
-   case AttrType.attrString:
-     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
-     System.out.print(sval);
-     break;
-
-   case AttrType.attrNull:
-   case AttrType.attrSymbol:
-     break;
-   }
-   System.out.println("]");
-
+  System.out.print("[ " + Subject.slotNo + ", " + Subject.pageNo + ", ");
+  System.out.print(Predicate.slotNo + ", " + Predicate.pageNo + ", ");
+  System.out.print(Object.slotNo + ", " + Object.pageNo + ", ");
+  System.out.println(Value + "]");
  }
 
   /**
