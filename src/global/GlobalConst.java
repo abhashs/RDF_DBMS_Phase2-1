@@ -20,7 +20,7 @@ public interface GlobalConst {
   public static final int MINIBASE_DB_SIZE = 10000;           
   public static final int MINIBASE_MAX_TRANSACTIONS = 100;
   public static final int MINIBASE_DEFAULT_SHAREDMEM_SIZE = 1000;
-  
+  public static final int QUADRUPLE_SIZE = 28; 
   /**
    * also the name of a relation
    */

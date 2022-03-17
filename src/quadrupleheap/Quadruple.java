@@ -23,12 +23,12 @@ public class Quadruple implements GlobalConst{
   /**
    * start position of this tuple in data[]
    */
-  private int tuple_offset;
+  private int quadruple_offset;
 
   /**
    * length of this tuple
    */
-  private int tuple_length;
+  private int quadruple_length;
 
   /** 
    * private field
@@ -48,17 +48,18 @@ public class Quadruple implements GlobalConst{
     * Creat a new tuple with length = max_size,tuple offset = 0.
     */
 
-  private EID Subject;
-  private PID Predicate;
-  private EID Object;
-  private double Value;
+  private AttrType valueType = new AttrType(AttrType.attrReal);
+  private EID Subject; //8 bytes
+  private PID Predicate; //8 bytes
+  private EID Object; //8 bytes
+  private float Value; //4 bytes
 
   public Quadruple()
   {
        // Creat a new tuple
-       data = new byte[max_size];
-       tuple_offset = 0;
-       tuple_length = max_size;
+       data = new byte[QUADRUPLE_SIZE];
+       quadruple_offset = 0;
+       quadruple_length = QUADRUPLE_SIZE;
   }
    
    /** Constructor
@@ -67,11 +68,11 @@ public class Quadruple implements GlobalConst{
     * @param length the length of the tuple
     */
 
-   public Quadruple(byte [] atuple, int offset, int length)
+   public Quadruple(byte [] aquadruple, int offset)
    {
-      data = atuple;
-      tuple_offset = offset;
-      tuple_length = length;
+      data = aquadruple;
+      quadruple_offset = offset;
+      quadruple_length = QUADRUPLE_SIZE;
     //  fldCnt = getShortValue(offset, data);
    }
    
@@ -79,13 +80,13 @@ public class Quadruple implements GlobalConst{
     * @param fromTuple   a byte array which contains the tuple
     * 
     */
-   public Quadruple(Quadruple fromTuple)
+   public Quadruple(Quadruple fromQuadruple)
    {
-       data = fromTuple.getQuadrupleByteArray();
-       tuple_length = fromTuple.getLength();
-       tuple_offset = 0;
-       fldCnt = fromTuple.noOfFlds(); 
-       fldOffset = fromTuple.copyFldOffset(); 
+       data = fromQuadruple.getQuadrupleByteArray();
+       quadruple_length = fromQuadruple.getLength();
+       quadruple_offset = 0;
+       fldCnt = fromQuadruple.noOfFlds(); 
+       fldOffset = fromQuadruple.copyFldOffset(); 
    }
 
    /**  
@@ -97,8 +98,8 @@ public class Quadruple implements GlobalConst{
   {
        // Creat a new tuple
        data = new byte[size];
-       tuple_offset = 0;
-       tuple_length = size;     
+       quadruple_offset = 0;
+       quadruple_length = size;     
   }
 
   //! Maybe change these to use byte arrays? If this doesn't work
@@ -114,34 +115,43 @@ public class Quadruple implements GlobalConst{
     return Object;
   }
 
-  public double getConfidence(){
+  public float getConfidence(){
     return Value;
   }
 
-  public void setSubjectID(EID subjecqid){
-    Subject = subjecqid;
+  //TODO update bytearray from set
+  public void setSubjectID(EID subjectQID) throws IOException{
+    Subject = subjectQID;
+    Subject.writeToByteArray(data, 0);
   }
 
-  public void setPredicateID(PID predicateID){
+  public void setPredicateID(PID predicateID) throws IOException{
     Predicate = predicateID;
+    Predicate.writeToByteArray(data, 8);
   }
 
-  public void setObjectID(EID objecqid){
-    Object = objecqid;
+  public void setObjectID(EID objectQID) throws IOException{
+    Object = objectQID;
+    Object.writeToByteArray(data,16);
   }
 
-  public void setConfidence(double confidence){
+  public void setConfidence(float confidence) throws IOException{
     Value = confidence;
+    Object.writeToByteArray(data, 24);
   }
    
    /** Copy a tuple to the current tuple position
     *  you must make sure the tuple lengths must be equal
     * @param fromTuple the tuple being copied
     */
-   public void quadrupleCopy(Quadruple fromTuple)
+   public void quadrupleCopy(Quadruple fromQuadruple)
    {
-       byte [] temparray = fromTuple.getQuadrupleByteArray();
-       System.arraycopy(temparray, 0, data, tuple_offset, tuple_length);   
+       byte [] temparray = fromQuadruple.getQuadrupleByteArray();
+       System.arraycopy(temparray, 0, data, quadruple_offset, quadruple_length);   
+       Subject = fromQuadruple.getSubjectID();
+       Predicate = fromQuadruple.getPredicateID();
+       Object = fromQuadruple.getObjectID();
+       Value = fromQuadruple.getConfidence();
 //       fldCnt = fromTuple.noOfFlds(); 
 //       fldOffset = fromTuple.copyFldOffset(); 
    }
@@ -155,8 +165,8 @@ public class Quadruple implements GlobalConst{
    public void quadrupleInit(byte [] atuple, int offset, int length)
    {
       data = atuple;
-      tuple_offset = offset;
-      tuple_length = length;
+      quadruple_offset = offset;
+      quadruple_length = length;
    }
 
  /**
@@ -168,8 +178,8 @@ public class Quadruple implements GlobalConst{
  public void quadrupleSet(byte [] record, int offset, int length)  
   {
       System.arraycopy(record, offset, data, 0, length);
-      tuple_offset = 0;
-      tuple_length = length;
+      quadruple_offset = 0;
+      quadruple_length = length;
   }
   
  /** get the length of a tuple, call this method if you did not 
@@ -178,7 +188,7 @@ public class Quadruple implements GlobalConst{
   */   
   public int getLength()
    {
-      return tuple_length;
+      return quadruple_length;
    }
 
 /** get the length of a tuple, call this method if you did 
@@ -187,7 +197,7 @@ public class Quadruple implements GlobalConst{
   */
   public short size()
    {
-      return ((short) (fldOffset[fldCnt] - tuple_offset));
+      return ((short) (fldOffset[fldCnt] - quadruple_offset));
    }
  
    /** get the offset of a tuple
@@ -195,7 +205,7 @@ public class Quadruple implements GlobalConst{
     */   
    public int getOffset()
    {
-      return tuple_offset;
+      return quadruple_offset;
    }   
    
    /** Copy the tuple byte array out
@@ -211,8 +221,8 @@ public class Quadruple implements GlobalConst{
   //  }
 
    public byte[] getQuadrupleByteArray(){
-    byte[] quadruplecopy = new byte[tuple_length];
-    System.arraycopy(data, tuple_offset, quadruplecopy, 0, tuple_length);
+    byte[] quadruplecopy = new byte[QUADRUPLE_SIZE];
+    System.arraycopy(data, quadruple_offset, quadruplecopy, 0, quadruple_length);
     return quadruplecopy;
    }
    
@@ -405,13 +415,13 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
     throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
   
   fldCnt = numFlds;
-  Convert.setShortValue(numFlds, tuple_offset, data);
+  Convert.setShortValue(numFlds, quadruple_offset, data);
   fldOffset = new short[numFlds+1];
-  int pos = tuple_offset+2;  // start position for fldOffset[]
+  int pos = quadruple_offset+2;  // start position for fldOffset[]
   
   //sizeof short =2  +2: array siaze = numFlds +1 (0 - numFilds) and
   //another 1 for fldCnt
-  fldOffset[0] = (short) ((numFlds +2) * 2 + tuple_offset);   
+  fldOffset[0] = (short) ((numFlds +2) * 2 + quadruple_offset);   
    
   Convert.setShortValue(fldOffset[0], pos, data);
   pos +=2;
@@ -465,9 +475,9 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
   fldOffset[numFlds] = (short) (fldOffset[i-1] + incr);
   Convert.setShortValue(fldOffset[numFlds], pos, data);
   
-  tuple_length = fldOffset[numFlds] - tuple_offset;
+  quadruple_length = fldOffset[numFlds] - quadruple_offset;
 
-  if(tuple_length > max_size)
+  if(quadruple_length > max_size)
    throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
 }
      
