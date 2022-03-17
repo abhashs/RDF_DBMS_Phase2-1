@@ -458,6 +458,8 @@ public class THFPage extends Page
 	throw new InvalidSlotNumberException (null, "HEAPFILE: INVALID_SLOTNO");
       }
     }
+
+  
   
   /**
    * @return RID of first record on page, null if page contains no records.  

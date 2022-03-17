@@ -86,7 +86,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
      user record(rid) and true if record is found.
      If the user record cannot be found, return false.
   */
-  private boolean  _findDataPage( RID rid,
+  private boolean  _findDataPage( QID rid,
 				  PageId dirPageId, THFPage dirpage,
 				  PageId dataPageId, THFPage datapage,
 				  RID rpDataPageRid) 
@@ -612,7 +612,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
    *
    * @return true record deleted  false:record not found
    */
-  public boolean deleteRecord(RID rid)  
+  public boolean deleteQuadruple(QID qid)  
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   HFException, 
@@ -628,7 +628,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       PageId currentDataPageId = new PageId();
       RID currentDataPageRid = new RID();
       
-      status = _findDataPage(rid,
+      status = _findDataPage(qid,
 			     currentDirPageId, currentDirPage, 
 			     currentDataPageId, currentDataPage,
 			     currentDataPageRid);
@@ -646,7 +646,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       DataPageInfo pdpinfo = new DataPageInfo(atuple);
       
       // delete the record on the datapage
-      currentDataPage.deleteRecord(rid);
+      currentDataPage.deleteRecord(qid);
       
       pdpinfo.recct--;
       pdpinfo.flushToTuple();	//Write to the buffer pool
