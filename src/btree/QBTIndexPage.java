@@ -80,10 +80,10 @@ public class QBTIndexPage extends QBTSortedPage{
    null if no space left.
    *@exception IndexInsertRecException error when insert
    */
-   public RID insertKey(KeyClass key, PageId pageNo) 
+   public QID insertKey(KeyClass key, PageId pageNo) 
       throws  IndexInsertRecException
     {
-      RID rid;
+      QID rid;
       KeyDataEntry entry;
       try {
         entry = new KeyDataEntry( key, pageNo); 
@@ -98,18 +98,18 @@ public class QBTIndexPage extends QBTSortedPage{
   
   /*  OPTIONAL: fullDeletekey 
    * This is optional, and is only needed if you want to do full deletion.
-   * Return its RID.  delete key may != key.  But delete key <= key,
+   * Return its QID.  delete key may != key.  But delete key <= key,
    * and the delete key is the first biggest key such that delete key <= key 
    *@param key the key used to search. Input parameter.
    *@exception IndexFullDeleteException if no record deleted or failed by
    * any reason
-   *@return  RID of the record deleted. Can not return null.
+   *@return  QID of the record deleted. Can not return null.
    */
-  RID deleteKey(KeyClass key) 
+  QID deleteKey(KeyClass key) 
     throws IndexFullDeleteException 
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      QID rid=new QID(); 
       
       
       try {
@@ -190,7 +190,7 @@ public class QBTIndexPage extends QBTSortedPage{
    *null if NO MORE RECORD
    *@exception IteratorException  iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(QID rid) 
     throws IteratorException
     {
       
@@ -226,7 +226,7 @@ public class QBTIndexPage extends QBTSortedPage{
    *null if no more record
    *@exception IteratorException iterator error
    */
-  public KeyDataEntry getNext (RID rid)
+  public KeyDataEntry getNext (QID rid)
     throws  IteratorException 
     {
       KeyDataEntry  entry; 
@@ -345,7 +345,7 @@ public class QBTIndexPage extends QBTSortedPage{
 	entry =  findKeyData( oldKey );
 	if (entry == null) return false;
 	
-	RID rid=deleteKey( entry.key );
+	QID rid=deleteKey( entry.key );
 	if (rid==null) throw new IndexFullDeleteException(null, "Rid is null");
 	
 	rid=insertKey( newKey, ((IndexData)entry.data).getData());        
@@ -429,7 +429,7 @@ public class QBTIndexPage extends QBTSortedPage{
 	  }
 	  else {
             // get its sibling's first record's key 
-            RID dummyRid=new RID();
+            QID dummyRid=new QID();
             KeyDataEntry firstEntry, lastEntry;
             firstEntry=indexPage.getFirst(dummyRid);
             
@@ -451,7 +451,7 @@ public class QBTIndexPage extends QBTSortedPage{
             indexPage.setLeftLink(((IndexData)(lastEntry.data)).getData() );
 	    
             // delete the last record from the old page
-            RID delRid=new RID();
+            QID delRid=new QID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = getSlotCnt()-1;
 
@@ -497,7 +497,7 @@ public class QBTIndexPage extends QBTSortedPage{
             setLeftLink(((IndexData)(firstEntry.data)).getData());
             
             // delete the first record 
-            RID delRid=new RID();
+            QID delRid=new QID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = 0;
             if (deleteSortedRecord(delRid) == false )

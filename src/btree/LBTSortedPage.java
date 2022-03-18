@@ -12,6 +12,7 @@ import java.lang.*;
 import global.*;
 import diskmgr.*;
 import heap.*;
+import labelheap.LHFPage;
 
 
 /**

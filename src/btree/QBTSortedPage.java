@@ -92,12 +92,12 @@ public class QBTSortedPage  extends HFPage{
    *@return its rid where the entry was inserted; null if no space left.
    *@exception  InsertRecException error when insert
    */
-   protected RID insertRecord( KeyDataEntry entry)
+   protected QID insertRecord( KeyDataEntry entry)
           throws InsertRecException 
    {
      int i;
      short  nType;
-     RID rid;
+     QID rid;
      byte[] record;
      // ASSERTIONS:
      // - the slot directory is compressed; Inserts will occur at the end
@@ -169,7 +169,7 @@ public class QBTSortedPage  extends HFPage{
    *@return true if success; false if rid is invalid(no record in the rid).
    *@exception DeleteRecException error when delete
    */
-  public  boolean deleteSortedRecord(RID rid)
+  public  boolean deleteSortedRecord(QID rid)
     throws DeleteRecException
     {
       try {
