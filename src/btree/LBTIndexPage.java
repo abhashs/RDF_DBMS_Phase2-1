@@ -98,12 +98,12 @@ public class LBTIndexPage extends LBTSortedPage{
   
   /*  OPTIONAL: fullDeletekey 
    * This is optional, and is only needed if you want to do full deletion.
-   * Return its RID.  delete key may != key.  But delete key <= key,
+   * Return its LID.  delete key may != key.  But delete key <= key,
    * and the delete key is the first biggest key such that delete key <= key 
    *@param key the key used to search. Input parameter.
    *@exception IndexFullDeleteException if no record deleted or failed by
    * any reason
-   *@return  RID of the record deleted. Can not return null.
+   *@return  LID of the record deleted. Can not return null.
    */
   LID deleteKey(KeyClass key) 
     throws IndexFullDeleteException 
@@ -497,7 +497,7 @@ public class LBTIndexPage extends LBTSortedPage{
             setLeftLink(((IndexData)(firstEntry.data)).getData());
             
             // delete the first record 
-            RID delRid=new RID();
+            LID delRid=new LID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = 0;
             if (deleteSortedRecord(delRid) == false )

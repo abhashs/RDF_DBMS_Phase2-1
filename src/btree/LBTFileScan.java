@@ -110,7 +110,7 @@ public class LBTFileScan  extends IndexFileScan
       
       entry=leafPage.getCurrent(curRid);  
       SystemDefs.JavabaseBM.unpinPage( leafPage.getCurPage(), false);
-      bfile.Delete(entry.key, ((LeafData)entry.data).getData());
+      bfile.Delete(entry.key, ((LLeafData)entry.data).getData());
       leafPage=bfile.findRunStart(entry.key, curRid);
       
       deletedcurrent = true;

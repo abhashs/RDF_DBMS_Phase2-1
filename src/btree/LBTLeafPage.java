@@ -14,7 +14,7 @@ import heap.*;
 
 /**
  * A BTLeafPage is a leaf page on a B+ tree.  It holds abstract 
- * <key, RID> pairs; it doesn't know anything about the keys 
+ * <key, LID> pairs; it doesn't know anything about the keys 
  * (their lengths or their types), instead relying on the abstract
  * interface consisting of BT.java.
  */
@@ -72,7 +72,7 @@ public class LBTLeafPage extends LBTSortedPage {
 
   
   /** insertRecord
-   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO RIDs
+   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO LID
    * WHICH MEAN TWO DIFFERENT THINGS.
    * Inserts a key, rid value into the leaf node. This is
    * accomplished by a call to SortedPage::insertRecord()
@@ -86,13 +86,13 @@ public class LBTLeafPage extends LBTSortedPage {
    *           i.e., the <key, dataRid> pair.
    *@exception  LeafInsertRecException error when insert
    */   
-  public RID insertRecord(KeyClass key, RID dataRid) 
+  public LID insertRecord(KeyClass key, LID dataRid) 
     throws  LeafInsertRecException
     {
       KeyDataEntry entry;
       
       try {
-        entry = new KeyDataEntry( key,dataRid);
+        entry = new KeyDataEntry( key, dataRid);
 	
         return insertRecord(entry);
       }
