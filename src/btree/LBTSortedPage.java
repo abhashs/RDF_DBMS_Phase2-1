@@ -19,7 +19,7 @@ import heap.*;
  * just holds abstract records in sorted order, based 
  * on how they compare using the key interface from BT.java.
  */
-public class LBTSortedPage  extends HFPage{
+public class LBTSortedPage  extends LHFPage{
 
   
   int keyType; //it will be initialized in BTFile
@@ -92,12 +92,12 @@ public class LBTSortedPage  extends HFPage{
    *@return its rid where the entry was inserted; null if no space left.
    *@exception  InsertRecException error when insert
    */
-   protected RID insertRecord( KeyDataEntry entry)
+   protected LID insertRecord( KeyDataEntry entry)
           throws InsertRecException 
    {
      int i;
      short  nType;
-     RID rid;
+     LID rid;
      byte[] record;
      // ASSERTIONS:
      // - the slot directory is compressed; Inserts will occur at the end
@@ -169,7 +169,7 @@ public class LBTSortedPage  extends HFPage{
    *@return true if success; false if rid is invalid(no record in the rid).
    *@exception DeleteRecException error when delete
    */
-  public  boolean deleteSortedRecord(RID rid)
+  public  boolean deleteSortedRecord(LID rid)
     throws DeleteRecException
     {
       try {

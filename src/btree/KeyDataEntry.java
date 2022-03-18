@@ -51,10 +51,36 @@ public class KeyDataEntry {
      this.data = new LeafData(rid);
   };
 
+  public KeyDataEntry( Integer key, LID rid) {
+     this.key = new IntegerKey(key); 
+     this.data = new LLeafData(rid);
+  };
+
+  public KeyDataEntry( Integer key, QID rid) {
+     this.key = new IntegerKey(key); 
+     this.data = new QLeafData(rid);
+  };
+
   /** Class constructor.
    */
   public KeyDataEntry( KeyClass key, RID rid){
      data = new LeafData(rid); 
+     if ( key instanceof IntegerKey ) 
+        this.key= new IntegerKey(((IntegerKey)key).getKey());
+     else if ( key instanceof StringKey ) 
+        this.key= new StringKey(((StringKey)key).getKey());    
+  };
+
+  public KeyDataEntry( KeyClass key, LID rid){
+     data = new LLeafData(rid); 
+     if ( key instanceof IntegerKey ) 
+        this.key= new IntegerKey(((IntegerKey)key).getKey());
+     else if ( key instanceof StringKey ) 
+        this.key= new StringKey(((StringKey)key).getKey());    
+  };
+
+  public KeyDataEntry( KeyClass key, QID rid){
+     data = new QLeafData(rid); 
      if ( key instanceof IntegerKey ) 
         this.key= new IntegerKey(((IntegerKey)key).getKey());
      else if ( key instanceof StringKey ) 

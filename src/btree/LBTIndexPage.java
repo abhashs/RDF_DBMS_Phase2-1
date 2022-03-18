@@ -80,10 +80,10 @@ public class LBTIndexPage extends LBTSortedPage{
    null if no space left.
    *@exception IndexInsertRecException error when insert
    */
-   public RID insertKey(KeyClass key, PageId pageNo) 
+   public LID insertKey(KeyClass key, PageId pageNo) 
       throws  IndexInsertRecException
     {
-      RID rid;
+      LID rid;
       KeyDataEntry entry;
       try {
         entry = new KeyDataEntry( key, pageNo); 
@@ -105,11 +105,11 @@ public class LBTIndexPage extends LBTSortedPage{
    * any reason
    *@return  RID of the record deleted. Can not return null.
    */
-  RID deleteKey(KeyClass key) 
+  LID deleteKey(KeyClass key) 
     throws IndexFullDeleteException 
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      LID rid=new LID(); 
       
       
       try {
@@ -190,7 +190,7 @@ public class LBTIndexPage extends LBTSortedPage{
    *null if NO MORE RECORD
    *@exception IteratorException  iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(LID rid) 
     throws IteratorException
     {
       
@@ -226,7 +226,7 @@ public class LBTIndexPage extends LBTSortedPage{
    *null if no more record
    *@exception IteratorException iterator error
    */
-  public KeyDataEntry getNext (RID rid)
+  public KeyDataEntry getNext (LID rid)
     throws  IteratorException 
     {
       KeyDataEntry  entry; 
@@ -345,7 +345,7 @@ public class LBTIndexPage extends LBTSortedPage{
 	entry =  findKeyData( oldKey );
 	if (entry == null) return false;
 	
-	RID rid=deleteKey( entry.key );
+	LID rid=deleteKey( entry.key );
 	if (rid==null) throw new IndexFullDeleteException(null, "Rid is null");
 	
 	rid=insertKey( newKey, ((IndexData)entry.data).getData());        
@@ -429,7 +429,7 @@ public class LBTIndexPage extends LBTSortedPage{
 	  }
 	  else {
             // get its sibling's first record's key 
-            RID dummyRid=new RID();
+            LID dummyRid=new LID();
             KeyDataEntry firstEntry, lastEntry;
             firstEntry=indexPage.getFirst(dummyRid);
             
@@ -451,7 +451,7 @@ public class LBTIndexPage extends LBTSortedPage{
             indexPage.setLeftLink(((IndexData)(lastEntry.data)).getData() );
 	    
             // delete the last record from the old page
-            RID delRid=new RID();
+            LID delRid=new LID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = getSlotCnt()-1;
 

@@ -111,7 +111,7 @@ public class LBTLeafPage extends LBTSortedPage {
    * null if no more record
    *@exception  IteratorException iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(LID rid) 
     throws  IteratorException
     {
       
@@ -146,7 +146,7 @@ public class LBTLeafPage extends LBTSortedPage {
     *@exception IteratorException iterator error
     */
 
-   public KeyDataEntry getNext (RID rid)
+   public KeyDataEntry getNext (LID rid)
      throws  IteratorException
    {
      KeyDataEntry  entry; 
@@ -180,7 +180,7 @@ public class LBTLeafPage extends LBTSortedPage {
    *@return return the current KeyDataEntry
    *@exception  IteratorException iterator error
    */ 
-   public KeyDataEntry getCurrent (RID rid)
+   public KeyDataEntry getCurrent (LID rid)
        throws  IteratorException
    {  
      rid.slotNo--;
@@ -198,7 +198,7 @@ public class LBTLeafPage extends LBTSortedPage {
      throws  LeafDeleteException
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      LID rid=new LID(); 
       
       try {
 	for(entry = getFirst(rid); entry!=null; entry=getNext(rid)) 
@@ -251,7 +251,7 @@ public class LBTLeafPage extends LBTSortedPage {
 	    
 	    
             //get its sibling's first record's key for adjusting parent pointer
-            RID dummyRid=new RID();
+            LID dummyRid=new LID();
             KeyDataEntry firstEntry;
             firstEntry=leafPage.getFirst(dummyRid);
 
@@ -259,7 +259,7 @@ public class LBTLeafPage extends LBTSortedPage {
             leafPage.insertRecord(lastEntry);
             
             // delete the last record from the old page
-            RID delRid=new RID();
+            LID delRid=new LID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = getSlotCnt()-1;
             if ( deleteSortedRecord(delRid) == false )
@@ -292,12 +292,12 @@ public class LBTLeafPage extends LBTSortedPage {
 					    NodeType.LEAF);
 	    
             // insert it into its sibling
-            RID dummyRid=new RID();
+            LID dummyRid=new LID();
             leafPage.insertRecord(firstEntry);
             
 
             // delete the first record from the old page
-            RID delRid=new RID();
+            LID delRid=new LID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = 0;
             if ( deleteSortedRecord(delRid) == false) 
