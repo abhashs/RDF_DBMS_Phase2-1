@@ -37,9 +37,22 @@ public class rdfDB implements GlobalConst {
   private LBTreeFile entityBTree;
   private LBTreeFile predicateBTree;
 
+  private LBTreeFile distinctSubjectsTree;
+
   private int quadCnt;
 
   private String dbName;
+
+  private static String createKeyString(byte[] quadruplePtr) throws IOException {
+    return new String(
+      Integer.toString( Convert.getIntValue(0, quadruplePtr)) + "," +
+      Integer.toString( Convert.getIntValue(4, quadruplePtr)) + "," +
+      Integer.toString( Convert.getIntValue(8, quadruplePtr)) + "," +
+      Integer.toString( Convert.getIntValue(12, quadruplePtr)) + "," +
+      Integer.toString( Convert.getIntValue(16, quadruplePtr)) + "," +
+      Integer.toString( Convert.getIntValue(20, quadruplePtr))
+    );
+  }
   
   /** Open the database with the given name.
    *
@@ -141,13 +154,49 @@ public class rdfDB implements GlobalConst {
 
     try {
       QBTreeFile qbtree = new QBTreeFile(dbName + "/qbtree");
+      distinctSubjectsTree = new LBTreeFile(dbName + "/dsbtree");
+
+      // entityHeap = new LabelHeapfile(dbName + "/ehfile");
 
       QBTFileScan qbscan = qbtree.new_scan(null, null);
+      LBTFileScan distinctSubjectsScan = null;
+
       KeyDataEntry nextEntry = qbscan.get_next();
-      do{
-        //TODO
+
+      //! Maybe change to do loop
+      while(nextEntry != null){
+        String key = ((StringKey)nextEntry.key).getKey();
+        String[] keyTokens = key.split(",");
+
+        String subjectByPageNoSlotNo = keyTokens[0]  + keyTokens[1];
+       
+        distinctSubjectsScan = distinctSubjectsTree.new_scan(
+          new StringKey(subjectByPageNoSlotNo),
+          new StringKey(subjectByPageNoSlotNo)
+        );
+
+        KeyDataEntry nextDistinctEntry = distinctSubjectsScan.get_next();
+        if (nextDistinctEntry == null){
+          LID distinctLID = new LID(
+            new PageId(Integer.parseInt(keyTokens[0])), 
+            Integer.parseInt(keyTokens[1])
+          );
+          distinctSubjectsTree.insert(new StringKey(subjectByPageNoSlotNo), distinctLID);
+        }
+
+        nextEntry = qbscan.get_next();
       }
-      while(nextEntry != null);
+      distinctSubjectsScan.DestroyBTreeFileScan();
+
+      distinctSubjectsScan = distinctSubjectsTree.new_scan(null, null);
+
+      while(distinctSubjectsScan.get_next() != null){ subjectCount++; }
+
+
+      qbtree.close();
+      qbscan.DestroyBTreeFileScan();
+      distinctSubjectsScan.DestroyBTreeFileScan();
+      distinctSubjectsTree.close();
     } 
     catch(Exception e){
       System.err.println(e);
@@ -156,10 +205,12 @@ public class rdfDB implements GlobalConst {
     return subjectCount;
   }
 
+
   public int getObjectCnt(){
 
-    return -1
+    return -1;
   }
+
 
   public EID insertEntity(String entityLabel){
     EID entEID = new EID();
@@ -278,22 +329,14 @@ public class rdfDB implements GlobalConst {
       Quadruple newQuadruple = new Quadruple(quadruplePtr, 0);
       QID quadrupleID = new QID();
 
-      EID subjectEID = newQuadruple.getSubjectID();
-      PID predicatePID = newQuadruple.getPredicateID();
-      EID objectEID = newQuadruple.getObjectID();
+      String conjoinedLabelString = rdfDB.createKeyString(quadruplePtr);
       float newConfidence = newQuadruple.getConfidence();
 
-      entityHeap = new LabelHeapfile(dbName + "/ehfile");
-      Label subjectLabel = entityHeap.getLabel(subjectEID.returnLID());
-      String subjectLabelString = subjectLabel.getLabel();
+      // entityHeap = new LabelHeapfile(dbName + "/ehfile");
+      // Label subjectLabel = entityHeap.getLabel(subjectEID.returnLID());
+      // Label predicateLabel = entityHeap.getLabel(predicatePID.returnLID());
+      // Label objectLabel = entityHeap.getLabel(objectEID.returnLID());
 
-      Label predicateLabel = entityHeap.getLabel(predicatePID.returnLID());
-      String predicateLabelString = predicateLabel.getLabel();
-
-      Label objectLabel = entityHeap.getLabel(objectEID.returnLID());
-      String objectLabelString = objectLabel.getLabel();
-
-      String conjoinedLabelString = subjectLabelString + predicateLabelString + objectLabelString;
       StringKey key = new StringKey(conjoinedLabelString);
 
       quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
@@ -329,25 +372,8 @@ public class rdfDB implements GlobalConst {
 
   public boolean deleteQuadruple(byte[] quadruplePtr){
     try{
-      Quadruple newQuadruple = new Quadruple(quadruplePtr, 0);
-
+      String conjoinedLabelString = rdfDB.createKeyString(quadruplePtr);
       QID quadrupleID = new QID();
-
-      EID subjectEID = newQuadruple.getSubjectID();
-      PID predicatePID = newQuadruple.getPredicateID();
-      EID objectEID = newQuadruple.getObjectID();
-
-      entityHeap = new LabelHeapfile(dbName + "/ehfile");
-      Label subjectLabel = entityHeap.getLabel(subjectEID.returnLID());
-      String subjectLabelString = subjectLabel.getLabel();
-
-      Label predicateLabel = entityHeap.getLabel(predicatePID.returnLID());
-      String predicateLabelString = predicateLabel.getLabel();
-
-      Label objectLabel = entityHeap.getLabel(objectEID.returnLID());
-      String objectLabelString = objectLabel.getLabel();
-
-      String conjoinedLabelString = subjectLabelString + predicateLabelString + objectLabelString;
       StringKey key = new StringKey(conjoinedLabelString);
 
       quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
