@@ -21,8 +21,8 @@ public class QBTFileScan  extends IndexFileScan
   QBTreeFile bfile; 
   String treeFilename;     // B+ tree we're scanning 
   QBTLeafPage leafPage;   // leaf page containing current record
-  RID curRid;       // position in current leaf; note: this is 
-                             // the RID of the key/RID pair within the
+  QID curRid;       // position in current leaf; note: this is 
+                             // the QID of the key/QID pair within the
                              // leaf page.                                    
   boolean didfirst;        // false only before getNext is called
   boolean deletedcurrent;  // true after deleteCurrent is called (read
@@ -110,7 +110,7 @@ public class QBTFileScan  extends IndexFileScan
       
       entry=leafPage.getCurrent(curRid);  
       SystemDefs.JavabaseBM.unpinPage( leafPage.getCurPage(), false);
-      bfile.Delete(entry.key, ((LeafData)entry.data).getData());
+      bfile.Delete(entry.key, ((QLeafData)entry.data).getData());
       leafPage=bfile.findRunStart(entry.key, curRid);
       
       deletedcurrent = true;

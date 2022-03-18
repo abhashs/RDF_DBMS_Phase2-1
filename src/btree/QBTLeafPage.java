@@ -14,7 +14,7 @@ import heap.*;
 
 /**
  * A BTLeafPage is a leaf page on a B+ tree.  It holds abstract 
- * <key, RID> pairs; it doesn't know anything about the keys 
+ * <key, QID> pairs; it doesn't know anything about the keys 
  * (their lengths or their types), instead relying on the abstract
  * interface consisting of BT.java.
  */
@@ -72,7 +72,7 @@ public class QBTLeafPage extends QBTSortedPage {
 
   
   /** insertRecord
-   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO RIDs
+   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO QIDs
    * WHICH MEAN TWO DIFFERENT THINGS.
    * Inserts a key, rid value into the leaf node. This is
    * accomplished by a call to SortedPage::insertRecord()
@@ -86,7 +86,7 @@ public class QBTLeafPage extends QBTSortedPage {
    *           i.e., the <key, dataRid> pair.
    *@exception  LeafInsertRecException error when insert
    */   
-  public RID insertRecord(KeyClass key, RID dataRid) 
+  public QID insertRecord(KeyClass key, QID dataRid) 
     throws  LeafInsertRecException
     {
       KeyDataEntry entry;
@@ -111,7 +111,7 @@ public class QBTLeafPage extends QBTSortedPage {
    * null if no more record
    *@exception  IteratorException iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(QID rid) 
     throws  IteratorException
     {
       
@@ -146,7 +146,7 @@ public class QBTLeafPage extends QBTSortedPage {
     *@exception IteratorException iterator error
     */
 
-   public KeyDataEntry getNext (RID rid)
+   public KeyDataEntry getNext (QID rid)
      throws  IteratorException
    {
      KeyDataEntry  entry; 
@@ -180,7 +180,7 @@ public class QBTLeafPage extends QBTSortedPage {
    *@return return the current KeyDataEntry
    *@exception  IteratorException iterator error
    */ 
-   public KeyDataEntry getCurrent (RID rid)
+   public KeyDataEntry getCurrent (QID rid)
        throws  IteratorException
    {  
      rid.slotNo--;
@@ -198,7 +198,7 @@ public class QBTLeafPage extends QBTSortedPage {
      throws  LeafDeleteException
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      QID rid=new QID(); 
       
       try {
 	for(entry = getFirst(rid); entry!=null; entry=getNext(rid)) 
@@ -251,7 +251,7 @@ public class QBTLeafPage extends QBTSortedPage {
 	    
 	    
             //get its sibling's first record's key for adjusting parent pointer
-            RID dummyRid=new RID();
+            QID dummyRid=new QID();
             KeyDataEntry firstEntry;
             firstEntry=leafPage.getFirst(dummyRid);
 
@@ -259,7 +259,7 @@ public class QBTLeafPage extends QBTSortedPage {
             leafPage.insertRecord(lastEntry);
             
             // delete the last record from the old page
-            RID delRid=new RID();
+            QID delRid=new QID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = getSlotCnt()-1;
             if ( deleteSortedRecord(delRid) == false )
@@ -292,12 +292,12 @@ public class QBTLeafPage extends QBTSortedPage {
 					    NodeType.LEAF);
 	    
             // insert it into its sibling
-            RID dummyRid=new RID();
+            QID dummyRid=new QID();
             leafPage.insertRecord(firstEntry);
             
 
             // delete the first record from the old page
-            RID delRid=new RID();
+            QID delRid=new QID();
             delRid.pageNo = getCurPage();
             delRid.slotNo = 0;
             if ( deleteSortedRecord(delRid) == false) 

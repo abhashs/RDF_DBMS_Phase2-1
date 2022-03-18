@@ -12,6 +12,7 @@ import java.lang.*;
 import global.*;
 import diskmgr.*;
 import heap.*;
+import quadrupleheap.THFPage;
 
 
 /**
@@ -19,7 +20,7 @@ import heap.*;
  * just holds abstract records in sorted order, based 
  * on how they compare using the key interface from BT.java.
  */
-public class QBTSortedPage  extends HFPage{
+public class QBTSortedPage  extends THFPage{
 
   
   int keyType; //it will be initialized in BTFile

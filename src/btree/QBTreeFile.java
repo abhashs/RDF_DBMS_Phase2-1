@@ -18,7 +18,7 @@ import heap.*;
  * abstract base class IndexFile.
  * It provides an insert/delete interface.
  */
-public class QBTreeFile extends IndexFile 
+public class QBTreeFile extends QIndexFile 
   implements GlobalConst {
   
   private final static int MAGIC0=1989;
@@ -294,7 +294,7 @@ public class QBTreeFile extends IndexFile
       
       if (sortedPage.getType() == NodeType.INDEX) {
 	QBTIndexPage indexPage= new QBTIndexPage( page, headerPage.get_keyType());
-	RID      rid=new RID();
+	QID      rid=new QID();
 	PageId       childId;
 	KeyDataEntry entry;
 	for (entry = indexPage.getFirst(rid);
@@ -356,7 +356,7 @@ public class QBTreeFile extends IndexFile
    *@exception LeafDeleteException error when delete in leaf page
    *@exception InsertException  error when insert in index page
    */    
-  public void insert(KeyClass key, RID rid) 
+  public void insert(KeyClass key, QID rid) 
     throws KeyTooLongException, 
 	   KeyNotMatchException, 
 	   LeafInsertRecException,   
@@ -413,7 +413,7 @@ public class QBTreeFile extends IndexFile
       if (headerPage.get_rootId().pid == INVALID_PAGE) {
 	PageId newRootPageId;
 	QBTLeafPage newRootPage;
-	RID dummyrid;
+	QID dummyrid;
 	
 	newRootPage=new QBTLeafPage( headerPage.get_keyType());
 	newRootPageId=newRootPage.getCurPage();
@@ -532,7 +532,7 @@ public class QBTreeFile extends IndexFile
   
   
   
-  private KeyDataEntry  _insert(KeyClass key, RID rid,  
+  private KeyDataEntry  _insert(KeyClass key, QID rid,  
 				PageId currentPageId) 
     throws  PinPageException,  
 	    IOException,
@@ -659,8 +659,8 @@ public class QBTreeFile extends IndexFile
 	
 	KeyDataEntry      tmpEntry;
 	PageId       tmpPageId;
-	RID insertRid;
-	RID delRid=new RID();
+	QID insertRid;
+	QID delRid=new QID();
 	
 	for ( tmpEntry= currentIndexPage.getFirst( delRid);
 	      tmpEntry!=null;tmpEntry= currentIndexPage.getFirst( delRid))  
@@ -675,7 +675,7 @@ public class QBTreeFile extends IndexFile
 	// - newIndexPage holds all former records from currentIndexPage
 	
 	// we will try to make an equal split
-	RID firstRid=new RID();
+	QID firstRid=new QID();
 	KeyDataEntry undoEntry=null;
 	for (tmpEntry = newIndexPage.getFirst(firstRid);
 	     (currentIndexPage.available_space() >
@@ -698,7 +698,7 @@ public class QBTreeFile extends IndexFile
 				  ((IndexData)undoEntry.data).getData());
 	  
 	  currentIndexPage.deleteSortedRecord 
-	    (new RID(currentIndexPage.getCurPage(),
+	    (new QID(currentIndexPage.getCurPage(),
 		     (int)currentIndexPage.getSlotCnt()-1) );              
 	}
 	
@@ -731,7 +731,7 @@ public class QBTreeFile extends IndexFile
 				  ((IndexData)tmpEntry.data).getData());
 
 	  currentIndexPage.deleteSortedRecord
-	    (new RID(currentIndexPage.getCurPage(), i) );      
+	    (new QID(currentIndexPage.getCurPage(), i) );      
 	  
 	}
 	
@@ -848,7 +848,7 @@ public class QBTreeFile extends IndexFile
 	  
 	  
 	  KeyDataEntry     tmpEntry;
-	  RID       firstRid=new RID();
+	  QID       firstRid=new QID();
 	  
 	  
 	  for (tmpEntry = currentLeafPage.getFirst(firstRid);
@@ -857,7 +857,7 @@ public class QBTreeFile extends IndexFile
 	    {
 	      
 	      newLeafPage.insertRecord( tmpEntry.key,
-					((LeafData)(tmpEntry.data)).getData());
+					((QLeafData)(tmpEntry.data)).getData());
 	      currentLeafPage.deleteSortedRecord(firstRid);
 	      
 	    }
@@ -875,7 +875,7 @@ public class QBTreeFile extends IndexFile
 	    {	   
 	      undoEntry=tmpEntry;
 	      currentLeafPage.insertRecord( tmpEntry.key,
-					    ((LeafData)tmpEntry.data).getData());
+					    ((QLeafData)tmpEntry.data).getData());
 	      newLeafPage.deleteSortedRecord(firstRid);		
 	    }
 	  
@@ -884,10 +884,10 @@ public class QBTreeFile extends IndexFile
 	    if ( currentLeafPage.available_space() < 
 		 newLeafPage.available_space()) {
 	      newLeafPage.insertRecord( undoEntry.key, 
-					((LeafData)undoEntry.data).getData());
+					((QLeafData)undoEntry.data).getData());
 	      
 	      currentLeafPage.deleteSortedRecord
-		(new RID(currentLeafPage.getCurPage(),
+		(new QID(currentLeafPage.getCurPage(),
 			 (int)currentLeafPage.getSlotCnt()-1) );              
 	    }
 	  }	  
@@ -968,7 +968,7 @@ public class QBTreeFile extends IndexFile
    *@exception IOException error from the lower layer
    *
    */
-  public boolean Delete(KeyClass key, RID rid) 
+  public boolean Delete(KeyClass key, QID rid) 
     throws  DeleteFashionException, 
 	    LeafRedistributeException,
 	    RedistributeException,
@@ -1001,7 +1001,7 @@ public class QBTreeFile extends IndexFile
   /* 
    * findRunStart.
    * Status QBTreeFile::findRunStart (const void   lo_key,
-   *                                RID          *pstartrid)
+   *                                QID          *pstartrid)
    *
    * find left-most occurrence of `lo_key', going all the way left if
    * lo_key is null.
@@ -1018,7 +1018,7 @@ public class QBTreeFile extends IndexFile
    */
   
   QBTLeafPage findRunStart (KeyClass lo_key, 
-			   RID startrid)
+			   QID startrid)
     throws IOException, 
 	   IteratorException,  
 	   KeyNotMatchException,
@@ -1034,7 +1034,7 @@ public class QBTreeFile extends IndexFile
       PageId curpageno=null;                // iterator
       PageId prevpageno;
       PageId nextpageno;
-      RID curRid;
+      QID curRid;
       KeyDataEntry curEntry;
       
       pageno = headerPage.get_rootId();
@@ -1138,7 +1138,7 @@ public class QBTreeFile extends IndexFile
   
   
   /*
-   *  Status QBTreeFile::NaiveDelete (const void *key, const RID rid) 
+   *  Status QBTreeFile::NaiveDelete (const void *key, const QID rid) 
    * 
    * Remove specified data entry (<key, rid>) from an index.
    *
@@ -1150,7 +1150,7 @@ public class QBTreeFile extends IndexFile
    * QBTLeafPage::delUserRid.
    */
   
-  private boolean NaiveDelete ( KeyClass key, RID rid)
+  private boolean NaiveDelete ( KeyClass key, QID rid)
     throws LeafDeleteException,  
 	   KeyNotMatchException,  
 	   PinPageException,
@@ -1162,9 +1162,9 @@ public class QBTreeFile extends IndexFile
 	   IteratorException
     {
       QBTLeafPage leafPage;
-      RID curRid=new RID();  // iterator
+      QID curRid=new QID();  // iterator
       KeyClass curkey;
-      RID dummyRid; 
+      QID dummyRid; 
       PageId nextpage;
       boolean deleted;
       KeyDataEntry entry;
@@ -1195,7 +1195,7 @@ public class QBTreeFile extends IndexFile
 	  
 	  leafPage=new QBTLeafPage(pinPage(nextpage), 
 				  headerPage.get_keyType() );
-	  entry=leafPage.getFirst(new RID());
+	  entry=leafPage.getFirst(new QID());
 	}
 	
 	if ( QBT.keyCompare(key, entry.key) > 0 )
@@ -1239,7 +1239,7 @@ public class QBTreeFile extends IndexFile
 
   
   /*
-   * Status QBTreeFile::FullDelete (const void *key, const RID rid) 
+   * Status QBTreeFile::FullDelete (const void *key, const QID rid) 
    * 
    * Remove specified data entry (<key, rid>) from an index.
    *
@@ -1255,7 +1255,7 @@ public class QBTreeFile extends IndexFile
    *@return false if no such record; true if succees 
    */
   
-  private boolean FullDelete (KeyClass key,  RID rid)
+  private boolean FullDelete (KeyClass key,  QID rid)
     throws IndexInsertRecException,
 	   RedistributeException,
 	   IndexSearchException, 
@@ -1306,7 +1306,7 @@ public class QBTreeFile extends IndexFile
     }
   
   private KeyClass _Delete ( KeyClass key,
-			     RID     rid,
+			     QID     rid,
 			     PageId        currentPageId,
 			     PageId        parentPageId)
     throws IndexInsertRecException,
@@ -1341,10 +1341,10 @@ public class QBTreeFile extends IndexFile
       
       
       if (sortPage.getType()==NodeType.LEAF ) {
-        RID curRid=new RID();  // iterator
+        QID curRid=new QID();  // iterator
         KeyDataEntry tmpEntry;
         KeyClass curkey;
-        RID dummyRid; 
+        QID dummyRid; 
         PageId nextpage;
         QBTLeafPage leafPage;
         leafPage=new QBTLeafPage(page, headerPage.get_keyType());        
@@ -1353,7 +1353,7 @@ public class QBTreeFile extends IndexFile
 	KeyClass deletedKey=key;
 	tmpEntry=leafPage.getFirst(curRid);
 	
-	RID delRid;    
+	QID delRid;    
 	// for all records with key equal to 'key', delete it if its rid = 'rid'
 	while((tmpEntry!=null) && (QBT.keyCompare(key,tmpEntry.key)>=0)) { 
           // WriteUpdateLog is done in the btleafpage level - to log the
@@ -1468,7 +1468,7 @@ public class QBTreeFile extends IndexFile
 		}
 		
 		// move all entries from rightChild to leftChild
-		RID firstRid=new RID(), insertRid;
+		QID firstRid=new QID(), insertRid;
 		for (tmpEntry= rightChild.getFirst(firstRid);
 		     tmpEntry != null;
 		     tmpEntry=rightChild.getFirst(firstRid)) {
@@ -1569,7 +1569,7 @@ public class QBTreeFile extends IndexFile
 	// save possible old child entry before deletion
 	PageId dummyPageId; 
 	KeyClass deletedKey = key;
-	RID curRid=indexPage.deleteKey(oldChildKey);
+	QID curRid=indexPage.deleteKey(oldChildKey);
 	
 	if (indexPage.getCurPage().pid == headerPage.get_rootId().pid) {
 	  // the index page is the root
@@ -1633,10 +1633,10 @@ public class QBTreeFile extends IndexFile
 	  int pushKeySize=0;
 	  if (direction==1) {
 	    pushKeySize=QBT.getKeyLength
-	      (parentPage.findKey(siblingPage.getFirst(new RID()).key));
+	      (parentPage.findKey(siblingPage.getFirst(new QID()).key));
 	  } else if (direction==-1) {
 	    pushKeySize=QBT.getKeyLength
-	      (parentPage.findKey(indexPage.getFirst(new RID()).key));
+	      (parentPage.findKey(indexPage.getFirst(new QID()).key));
 	  }  
 	  
 	  if (siblingPage.redistribute(indexPage,parentPage, 
@@ -1699,7 +1699,7 @@ public class QBTreeFile extends IndexFile
 	    
 	    // pull down the entry in its parent node
 	    // and put it at the end of the left child
-	    RID firstRid=new RID(), insertRid;
+	    QID firstRid=new QID(), insertRid;
 	    PageId curPageId;
 	    
 	    leftChild.insertKey(  parentPage.findKey(oldChildEntry),
@@ -1784,7 +1784,7 @@ public class QBTreeFile extends IndexFile
       scan.endkey=hi_key;
       scan.didfirst=false;
       scan.deletedcurrent=false;
-      scan.curRid=new RID();     
+      scan.curRid=new QID();     
       scan.keyType=headerPage.get_keyType();
       scan.maxKeysize=headerPage.get_maxKeySize();
       scan.bfile=this;
@@ -1805,7 +1805,7 @@ public class QBTreeFile extends IndexFile
       if( trace!=null ) {
 	
 	QBTSortedPage sortedPage;
-	RID metaRid=new RID();
+	QID metaRid=new QID();
 	PageId childPageId;
 	KeyClass key;
 	KeyDataEntry entry;
