@@ -203,7 +203,7 @@ public class LBT  implements GlobalConst{
         m=n;
         if( entry.data instanceof IndexData )
 	  n+=4;
-        else if (entry.data instanceof LeafData )      
+        else if (entry.data instanceof LLeafData )      
 	  n+=8;
 	
         data=new byte[n];
@@ -222,10 +222,10 @@ public class LBT  implements GlobalConst{
 	  Convert.setIntValue( ((IndexData)entry.data).getData().pid,
 			       m, data);
         }
-        else if ( entry.data instanceof LeafData ) {
-	  Convert.setIntValue( ((LeafData)entry.data).getData().slotNo,
+        else if ( entry.data instanceof LLeafData ) {
+	  Convert.setIntValue( ((LLeafData)entry.data).getData().slotNo,
 			       m, data);
-	  Convert.setIntValue( ((LeafData)entry.data).getData().pageNo.pid,
+	  Convert.setIntValue( ((LLeafData)entry.data).getData().pageNo.pid,
 			       m+4, data);
 	  
         }
@@ -303,10 +303,10 @@ public class LBT  implements GlobalConst{
 	    entry=leafPage.getNext(rid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, [pageNo, slotNo]):   ("+ 
-			       (IntegerKey)entry.key+ ",  "+(LeafData)entry.data+ " )");
+			       (IntegerKey)entry.key+ ",  "+(LLeafData)entry.data+ " )");
 	  if( keyType==AttrType.attrString) 
 	    System.out.println(i+" (key, [pageNo, slotNo]):   ("+ 
-			       (StringKey)entry.key + ",  "+(LeafData)entry.data); 
+			       (StringKey)entry.key + ",  "+(LLeafData)entry.data); 
 	  
 	  i++;
         }

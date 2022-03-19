@@ -174,13 +174,10 @@ public class LBTreeFile extends LIndexFile
 	   ConstructPageException        
     {      
       
-      System.out.println(filename);
       headerPageId=get_file_entry(filename);
+      
      
-	  System.out.println("Before headpage");
-	  System.out.println(headerPageId.toString());
       headerPage= new LBTreeHeaderPage( headerPageId);       
-	  System.out.println("After headerpage");
       dbname = new String(filename);
       /*
        *

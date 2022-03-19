@@ -127,10 +127,7 @@ class LBTreeHeaderPage extends HFPage {
     { 
       super();
       try {
-	System.out.println("Before pinpage") ;
-  System.out.println(pageno);
-	SystemDefs.JavabaseBM.pinPage(pageno, this, false/*Rdisk*/); 
-	System.out.println("After pinpage") ;
+	SystemDefs.JavabaseBM.pinPage(pageno, this, false/*Rdisk*/);
       }
       catch (Exception e) {
         e.printStackTrace();

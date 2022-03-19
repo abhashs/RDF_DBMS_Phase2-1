@@ -258,9 +258,8 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       Page apage = new Page();
       _firstDirPageId = null;
       if (_ftype == ORDINARY){
-		System.out.println("before file entry");
+//		System.out.println("before file entry");
 	_firstDirPageId = get_file_entry(_fileName);
-		System.out.println("after file entry");
 	  }
       
       if(_firstDirPageId==null)
@@ -407,7 +406,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	      dpinfo = new DataPageInfo(atuple);
 	      
 	      // need check the record length == DataPageInfo'slength
-	     System.out.println(recLen + " :: " + dpinfo.availspace) ;
 	       if(recLen <= dpinfo.availspace)
 		 {
 		   found = true;
@@ -464,8 +462,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 		  byte [] tmpData = atuple.getQuadrupleByteArray();
 		  currentDataPageRid = currentDirPage.insertRecord(tmpData);
 
-		  System.out.println("CurrentDataPageRID: " + 
-		  currentDataPageRid.pageNo.pid + " " + currentDataPageRid.slotNo);
 		  
 		  QID tmprid = currentDirPage.firstRecord();
 		  
@@ -1015,7 +1011,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
     PageId tmpId = new PageId();
 
     try {
-		System.out.println(SystemDefs.JavabaseDB);
+//		System.out.println(SystemDefs.JavabaseDB);
       tmpId = SystemDefs.JavabaseDB.get_file_entry(filename);
     }
     catch (Exception e) {

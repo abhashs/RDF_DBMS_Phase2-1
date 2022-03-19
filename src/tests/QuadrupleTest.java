@@ -37,39 +37,39 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 
 		// Commands here is very machine dependent.  We assume
 		// user are on UNIX system here
-		try {
-			Runtime.getRuntime().exec(remove_logcmd);
-			Runtime.getRuntime().exec(remove_dbcmd);
-		} 
-		catch (IOException e) {
-			System.err.println (""+e);
-		}
-
-		remove_logcmd = remove_cmd + newlogpath;
-		remove_dbcmd = remove_cmd + newdbpath;
-
-		//This step seems redundant for me.  But it's in the original
-		//C++ code.  So I am keeping it as of now, just in case I
-		//I missed something
-		try {
-			Runtime.getRuntime().exec(remove_logcmd);
-			Runtime.getRuntime().exec(remove_dbcmd);
-		} 
-		catch (IOException e) {
-			System.err.println (""+e);
-		}
+//		try {
+//			Runtime.getRuntime().exec(remove_logcmd);
+//			Runtime.getRuntime().exec(remove_dbcmd);
+//		} 
+//		catch (IOException e) {
+//			System.err.println (""+e);
+//		}
+//
+//		remove_logcmd = remove_cmd + newlogpath;
+//		remove_dbcmd = remove_cmd + newdbpath;
+//
+//		//This step seems redundant for me.  But it's in the original
+//		//C++ code.  So I am keeping it as of now, just in case I
+//		//I missed something
+//		try {
+//			Runtime.getRuntime().exec(remove_logcmd);
+//			Runtime.getRuntime().exec(remove_dbcmd);
+//		} 
+//		catch (IOException e) {
+//			System.err.println (""+e);
+//		}
 
 		//Run the tests. Return type different from C++
 		boolean _pass = runAllTests();
 
-		//Clean up again
-		try {
-			Runtime.getRuntime().exec(remove_logcmd);
-			Runtime.getRuntime().exec(remove_dbcmd);
-		} 
-		catch (IOException e) {
-			System.err.println (""+e);
-		}
+//		//Clean up again
+//		try {
+//			Runtime.getRuntime().exec(remove_logcmd);
+//			Runtime.getRuntime().exec(remove_dbcmd);
+//		} 
+//		catch (IOException e) {
+//			System.err.println (""+e);
+//		}
 
 		System.out.println ("\n" + "..." + testName() + " tests ");
 		System.out.println (_pass==OK ? "completely successfully" : "failed");
@@ -109,17 +109,7 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 		}
 
 		try {
-			System.out.println(t.getQuadrupleByteArray().length);
-			System.out.println(t.returnTupleByteArray().length);
-			System.out.println(t.size());
-
 			tid = f.insertQuadruple(t.returnTupleByteArray());
-			System.out.println(tid.pageNo + "," + tid.slotNo);
-
-			// f.getQuadruple(
-			// 	new QID(1, 0)
-			// );
-			System.out.println(f.getQuadruple(tid).toString());
 			f.getQuadruple(tid).print();
 		}
 		catch (Exception e) {
@@ -127,7 +117,7 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 			e.printStackTrace();
 		}
 
-		System.err.println("------------------- TEST 1 completed ---------------------\n");
+		System.out.println("------------------- TEST 1 completed ---------------------\n");
 
 		return status;
 	}
@@ -150,6 +140,9 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 
 	protected boolean test2(){
 		boolean status = true;
+		
+		//DO NOT USE IN FINAL
+		SystemDefs.JavabaseDB.init();
 
 		System.out.println("------------------------ TEST 2 --------------------------");
 
@@ -157,6 +150,7 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 		String[] preds = {"owns", "drives", "eats", "lives", "runs", "flies"};
 		String[] objects = {"car", "food", "fordf150", "casino", "house", "boeing"};
 		float[] cfs = {(float) .11, (float) .214, (float) .42, (float) .99, (float) .83, (float) .45};
+		float[] cf2 = {(float) .45, (float) .34, (float) .11, (float) .03, (float) .53, (float) .67};
 
 		LID[] lids = new LID[12];
 		PID[] pids = new PID[6];
@@ -167,14 +161,24 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 			pids[i] = SystemDefs.JavabaseDB.insertPredicate(preds[i]);
 			lids[i+6] = SystemDefs.JavabaseDB.insertEntity(objects[i]).returnLID();
 		}
+		
+		for(int i = 0; i < names.length; i++) {
+			// System.out.println("before inserting name");
+			lids[i] = SystemDefs.JavabaseDB.insertEntity(names[i]).returnLID();
+			pids[i] = SystemDefs.JavabaseDB.insertPredicate(preds[i]);
+			lids[i+6] = SystemDefs.JavabaseDB.insertEntity(objects[i]).returnLID();
+		}
 
 		for (int i = 0; i < 6; i++){
 			// Quadruple quad = new Quadruple(toByteArray(lids[i], pids[i], lids[i+6], cfs[i]), 0);
 			SystemDefs.JavabaseDB.insertQuadruple(toByteArray(lids[i], pids[i], lids[i+6], cfs[i]));
+			SystemDefs.JavabaseDB.insertQuadruple(toByteArray(lids[i], pids[i], lids[i+6], cf2[i]));
 		}
+		
 
 		System.out.println(
 			SystemDefs.JavabaseDB.getQuadrupleCnt() + " " +
+			SystemDefs.JavabaseDB.getSubjectCnt() + " " +
 			SystemDefs.JavabaseDB.getEntityCnt() + " " +
 			SystemDefs.JavabaseDB.getPredicateCnt() + " " +
 			SystemDefs.JavabaseDB.getObjectCnt() + " ");

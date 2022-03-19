@@ -115,7 +115,7 @@ public class LBTSortedPage  extends LHFPage{
        rid=super.insertRecord(record);
          if (rid==null) return null;
 	 
-         if ( entry.data instanceof LeafData )
+         if ( entry.data instanceof LLeafData )
 	   nType= NodeType.LEAF;
          else  //  entry.data instanceof IndexData              
 	   nType= NodeType.INDEX;

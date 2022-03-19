@@ -97,7 +97,6 @@ public class Quadruple implements GlobalConst{
       quadruple_offset = offset;
       quadruple_length = size;
 
-      System.out.println("Size: " + size);
       if (size >= 28){
         setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 0).returnEID());
         setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, offset + 8).returnPID());
@@ -143,22 +142,22 @@ public class Quadruple implements GlobalConst{
 
   public void setSubjectID(EID subjectQID) throws IOException{
     Subject = subjectQID;
-    Subject.writeToByteArray(data, 0);
+    Subject.writeToByteArray(data, quadruple_offset + 0);
   }
 
   public void setPredicateID(PID predicateID) throws IOException{
     Predicate = predicateID;
-    Predicate.writeToByteArray(data, 8);
+    Predicate.writeToByteArray(data, quadruple_offset + 8);
   }
 
   public void setObjectID(EID objectQID) throws IOException{
     Object = objectQID;
-    Object.writeToByteArray(data,16);
+    Object.writeToByteArray(data, quadruple_offset + 16);
   }
 
   public void setConfidence(float confidence) throws IOException{
     Value = confidence;
-    Convert.setFloValue(confidence, 24, data);
+    Convert.setFloValue(confidence, quadruple_offset + 24, data);
   }
    
    /** Copy a tuple to the current tuple position

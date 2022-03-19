@@ -40,7 +40,7 @@ public class rdfDB implements GlobalConst {
 
   private int quadCnt;
 
-  private String dbName = "";
+//  private String dbName = "";
 
   private static String createKeyString(byte[] quadruplePtr) throws IOException {
     return new String(
@@ -108,6 +108,25 @@ public class rdfDB implements GlobalConst {
   public rdfDB(int type) {
 
   }
+  
+  public void init() {
+	  //DO NOT USE IN FINAL
+	  try {
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  predicateHeap = new LabelHeapfile(name + "/phfile");
+		  
+		  quadBTree = new QBTreeFile(name + "/qbtree", AttrType.attrString, 255, 1);
+		  entityBTree = new LBTreeFile(name + "/ebtree", AttrType.attrString, 255, 1);
+		  predicateBTree = new LBTreeFile(name + "/pbtree", AttrType.attrString, 255, 1);
+		  distinctSubjectsTree = new LBTreeFile(name + "/dsbtree", AttrType.attrString, 255, 1);
+		  distinctObjectsTree = new LBTreeFile(name + "/dobtree", AttrType.attrString, 255, 1);
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+
+  }
 
   public int getQuadrupleCnt() {
     int val = 0;
@@ -149,8 +168,8 @@ public class rdfDB implements GlobalConst {
     int subjectCount = 0;
 
     try {
-      QBTreeFile qbtree = new QBTreeFile(dbName + "/qbtree");
-      distinctSubjectsTree = new LBTreeFile(dbName + "/dsbtree");
+      QBTreeFile qbtree = new QBTreeFile(name + "/qbtree");
+      distinctSubjectsTree = new LBTreeFile(name + "/dsbtree");
 
       // entityHeap = new LabelHeapfile(dbName + "/ehfile");
 
@@ -203,8 +222,8 @@ public class rdfDB implements GlobalConst {
     int objectCount = 0;
 
     try {
-      QBTreeFile qbtree = new QBTreeFile(dbName + "/qbtree");
-      distinctObjectsTree = new LBTreeFile(dbName + "/dobtree");
+      QBTreeFile qbtree = new QBTreeFile(name + "/qbtree");
+      distinctObjectsTree = new LBTreeFile(name + "/dobtree");
 
       QBTFileScan qbscan = qbtree.new_scan(null, null);
       LBTFileScan distinctObjectsScan = null;
@@ -217,7 +236,7 @@ public class rdfDB implements GlobalConst {
 
         String objectByPageNoSlotNo = keyTokens[4] + keyTokens[5];
 
-        distinctObjectsScan = distinctSubjectsTree.new_scan(
+        distinctObjectsScan = distinctObjectsTree.new_scan(
             new StringKey(objectByPageNoSlotNo),
             new StringKey(objectByPageNoSlotNo));
 
@@ -226,14 +245,14 @@ public class rdfDB implements GlobalConst {
           LID distinctLID = new LID(
               new PageId(Integer.parseInt(keyTokens[4])),
               Integer.parseInt(keyTokens[5]));
-          distinctSubjectsTree.insert(new StringKey(objectByPageNoSlotNo), distinctLID);
+          distinctObjectsTree.insert(new StringKey(objectByPageNoSlotNo), distinctLID);
         }
 
         nextEntry = qbscan.get_next();
       }
       distinctObjectsScan.DestroyBTreeFileScan();
 
-      distinctObjectsScan = distinctSubjectsTree.new_scan(null, null);
+      distinctObjectsScan = distinctObjectsTree.new_scan(null, null);
 
       while (distinctObjectsScan.get_next() != null) {
         objectCount++;
@@ -242,7 +261,7 @@ public class rdfDB implements GlobalConst {
       qbtree.close();
       qbscan.DestroyBTreeFileScan();
       distinctObjectsScan.DestroyBTreeFileScan();
-      distinctSubjectsTree.close();
+      distinctObjectsTree.close();
     } catch (Exception e) {
       System.err.println(e);
     }
@@ -254,9 +273,8 @@ public class rdfDB implements GlobalConst {
   public EID insertEntity(String entityLabel) {
     EID entEID = new EID();
     try {
-      System.out.println("before making entity db");
-      entityBTree = new LBTreeFile(dbName + "/ebtree");
-      System.out.println("after making entity db");
+//      System.out.println("before making entity db");
+      entityBTree = new LBTreeFile(name + "/ebtree");
       // entityID = entityHeap.insertLabel(entityLabel.getBytes()).returnEID();
       LBTFileScan entityFileScan = entityBTree.new_scan(new StringKey(entityLabel), new StringKey(entityLabel));
 
@@ -283,20 +301,22 @@ public class rdfDB implements GlobalConst {
   public PID insertPredicate(String predicateLabel) {
     PID predicatePID = new PID();
     try {
-      predicateBTree = new LBTreeFile(dbName + "/qbtree");
-      LBTFileScan entityFileScan = entityBTree.new_scan(new StringKey(predicateLabel), new StringKey(predicateLabel));
-      KeyDataEntry nextEntry = entityFileScan.get_next();
+    	predicateHeap = new LabelHeapfile(name + "/phfile");
+    	
+      predicateBTree = new LBTreeFile(name + "/pbtree");
+      LBTFileScan predicateFileScan = predicateBTree.new_scan(new StringKey(predicateLabel), new StringKey(predicateLabel));
+      KeyDataEntry nextEntry = predicateFileScan.get_next();
 
       if (nextEntry != null && ((StringKey) (nextEntry.key)).getKey().equals(predicateLabel)) {
         predicatePID = ((LLeafData) nextEntry.data).getData().returnPID();
       } else {
-        LID entLID = entityHeap.insertLabel(predicateLabel.getBytes());
+        LID predLID = predicateHeap.insertLabel(predicateLabel.getBytes());
 
-        entityBTree.insert(new StringKey(predicateLabel), entLID);
-        predicatePID = entLID.returnPID();
+        predicateBTree.insert(new StringKey(predicateLabel), predLID);
+        predicatePID = predLID.returnPID();
       }
-      entityFileScan.DestroyBTreeFileScan();
-      entityBTree.close();
+      predicateFileScan.DestroyBTreeFileScan();
+      predicateBTree.close();
     } catch (Exception e) {
       System.err.println(e);
     }
@@ -306,7 +326,7 @@ public class rdfDB implements GlobalConst {
   public boolean deleteEntity(String entityLabel) {
     try {
       StringKey key = new StringKey(entityLabel);
-      entityBTree = new LBTreeFile(dbName + "/ebtree");
+      entityBTree = new LBTreeFile(name + "/ebtree");
       entityHeap = new LabelHeapfile(name + "/ehfile");
 
       // ! Maybe need different objects (key, new key)
@@ -336,11 +356,11 @@ public class rdfDB implements GlobalConst {
   public boolean deletePredicate(String predicateLabel) {
     try {
       StringKey key = new StringKey(predicateLabel);
-      predicateBTree = new LBTreeFile(dbName + "/pbtree");
+      predicateBTree = new LBTreeFile(name + "/pbtree");
       predicateHeap = new LabelHeapfile(name + "/phfile");
 
-      LBTFileScan entityFileScan = predicateBTree.new_scan(key, key);
-      KeyDataEntry nextEntry = entityFileScan.get_next();
+      LBTFileScan predFileScan = predicateBTree.new_scan(key, key);
+      KeyDataEntry nextEntry = predFileScan.get_next();
 
       boolean deleted = false;
 
@@ -351,7 +371,7 @@ public class rdfDB implements GlobalConst {
           deleted = true;
         }
       }
-      entityFileScan.DestroyBTreeFileScan();
+      predFileScan.DestroyBTreeFileScan();
       predicateBTree.close();
 
       return deleted;
@@ -377,8 +397,8 @@ public class rdfDB implements GlobalConst {
 
       StringKey key = new StringKey(conjoinedLabelString);
 
-      quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
-      quadBTree = new QBTreeFile(dbName + "/qbtree");
+      quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+      quadBTree = new QBTreeFile(name + "/qbtree");
 
       QBTFileScan quadFileScan = quadBTree.new_scan(key, key);
       KeyDataEntry nextEntry = quadFileScan.get_next();
@@ -397,7 +417,7 @@ public class rdfDB implements GlobalConst {
       }
 
       quadFileScan.DestroyBTreeFileScan();
-      entityBTree.close();
+      quadBTree.close();
       return quadrupleID;
 
     } catch (Exception e) {
@@ -413,8 +433,8 @@ public class rdfDB implements GlobalConst {
       QID quadrupleID = new QID();
       StringKey key = new StringKey(conjoinedLabelString);
 
-      quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
-      quadBTree = new QBTreeFile(dbName + "/qbtree");
+      quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+      quadBTree = new QBTreeFile(name + "/qbtree");
 
       QBTFileScan quadFileScan = quadBTree.new_scan(key, key);
       KeyDataEntry nextEntry = quadFileScan.get_next();
@@ -431,7 +451,7 @@ public class rdfDB implements GlobalConst {
       }
 
       quadFileScan.DestroyBTreeFileScan();
-      predicateBTree.close();
+      quadBTree.close();
 
       return deleted;
     } catch (Exception e) {
@@ -1002,7 +1022,7 @@ public class rdfDB implements GlobalConst {
 
     if (!found) // Entry not found - don't post error, just fail.
     {
-      System.out.println("entry NOT found");
+//      System.out.println("entry NOT found");
       return null;
     }
 

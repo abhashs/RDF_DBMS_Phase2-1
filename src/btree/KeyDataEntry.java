@@ -94,6 +94,16 @@ public class KeyDataEntry {
      this.key = new StringKey(key); 
      this.data = new LeafData(rid);
   }; 
+  
+  public KeyDataEntry( String key, LID lid) {
+	     this.key = new StringKey(key); 
+	     this.data = new LLeafData(lid);
+	  };
+  
+  public KeyDataEntry( String key, QID qid) {
+	     this.key = new StringKey(key); 
+	     this.data = new QLeafData(qid);
+	  }; 
 
   /** Class constructor.
    */
@@ -101,12 +111,16 @@ public class KeyDataEntry {
      if ( key instanceof IntegerKey ) 
         this.key= new IntegerKey(((IntegerKey)key).getKey());
      else if ( key instanceof StringKey ) 
-        this.key= new StringKey(((StringKey)key).getKey()); 
-
+        this.key= new StringKey(((StringKey)key).getKey());
+     
      if ( data instanceof IndexData ) 
-        this.data= new IndexData(((IndexData)data).getData());
-     else if ( data instanceof LeafData ) 
-        this.data= new LeafData(((LeafData)data).getData()); 
+         this.data= new IndexData(((IndexData)data).getData());
+      else if ( data instanceof LLeafData ) 
+         this.data= new LLeafData(((LLeafData)data).getData()); 
+      else if ( data instanceof QLeafData ) 
+         this.data= new QLeafData(((QLeafData)data).getData()); 
+      else if ( data instanceof LeafData ) 
+         this.data= new LeafData(((LeafData)data).getData()); 
   }
 
   /** shallow equal. 
