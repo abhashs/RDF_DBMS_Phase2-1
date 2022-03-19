@@ -1011,7 +1011,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
     PageId tmpId = new PageId();
 
     try {
-		System.out.println(SystemDefs.test);
 		System.out.println(SystemDefs.JavabaseDB);
       tmpId = SystemDefs.JavabaseDB.get_file_entry(filename);
     }

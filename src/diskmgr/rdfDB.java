@@ -94,15 +94,15 @@ public class rdfDB implements GlobalConst {
    * default constructor.
    */
   public rdfDB() {
-    try {
-      System.out.println("Before quadHeapfile");
-      quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
-      System.out.println("After quadHeapfile");
-      entityHeap = new LabelHeapfile(dbName + "/ehfile");
-      predicateHeap = new LabelHeapfile(dbName + "/phfile");
-    } catch (Exception e) {
-      System.err.println(e);
-    }
+    // try {
+    //   System.out.println("Before quadHeapfile");
+    //   quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
+    //   System.out.println("After quadHeapfile");
+    //   entityHeap = new LabelHeapfile(dbName + "/ehfile");
+    //   predicateHeap = new LabelHeapfile(dbName + "/phfile");
+    // } catch (Exception e) {
+    //   System.err.println(e);
+    // }
   }
 
   public rdfDB(int type) {
@@ -947,17 +947,14 @@ public class rdfDB implements GlobalConst {
       InvalidPageNumberException,
       DiskMgrException {
 
-    System.out.println("Before variables");
     Page apage = new Page();
     boolean found = false;
     int slot = 0;
     PageId hpid = new PageId();
     PageId nexthpid = new PageId(0);
     DBHeaderPage dp;
-    System.out.println("after variables");
 
     do {// Start DO01
-      System.out.println("start of do loop");
       // System.out.println("get_file_entry do-loop01: "+name);
       hpid.pid = nexthpid.pid;
 
@@ -966,47 +963,36 @@ public class rdfDB implements GlobalConst {
 
       // This complication is because the first page has a different
       // structure from that of subsequent pages.
-      System.out.println("line 969 before if");
       if (hpid.pid == 0) {
-        System.out.println("line 969 case 1");
         dp = new DBFirstPage();
         ((DBFirstPage) dp).openPage(apage);
       } else {
-        System.out.println("line 969 case 2");
         dp = new DBDirectoryPage();
         ((DBDirectoryPage) dp).openPage(apage);
       }
-      System.out.println("line 979 after if");
       nexthpid = dp.getNextPage();
-      System.out.println("line 981 after getNextPage");
 
       int entry = 0;
       PageId tmppid = new PageId();
       String tmpname;
 
       while (entry < dp.getNumOfEntries()) {
-        System.out.println("start of while loop line 988");
         tmpname = dp.getFileEntry(tmppid, entry);
-        System.out.println("after getFileEntry line 990");
 
         if ((tmppid.pid != INVALID_PAGE) &&
             (tmpname.compareTo(name) == 0))
           break;
         entry++;
       }
-      System.out.println("after while before if line 997");
       if (entry < dp.getNumOfEntries()) {
         slot = entry;
         found = true;
       }
 
-      System.out.println("unpindPage line 1003");
       unpinPage(hpid, false /* undirty */);
-      System.out.println("unpindPage line 1005");
 
     } while ((nexthpid.pid != INVALID_PAGE) && (!found));// End of DO01
 
-    System.out.println("after do loop line 1009");
 
     // System.out.println("Exited Do loop in rdfDB get_file_entry");
 
@@ -1017,9 +1003,7 @@ public class rdfDB implements GlobalConst {
     }
 
     PageId startpid = new PageId();
-    System.out.println("getfileentry line 1020");
     dp.getFileEntry(startpid, slot);
-    System.out.println("getfileentry line 1022");
     return startpid;
   }
 
