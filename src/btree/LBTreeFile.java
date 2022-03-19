@@ -178,7 +178,7 @@ public class LBTreeFile extends LIndexFile
       headerPageId=get_file_entry(filename);   
      
 	  System.out.println("Before headpage");
-      headerPage= new  LBTreeHeaderPage( headerPageId);       
+      headerPage= new LBTreeHeaderPage( headerPageId);       
 	  System.out.println("After headerpage");
       dbname = new String(filename);
       /*
