@@ -990,7 +990,7 @@ public class rdfDB implements GlobalConst {
 
     } while ((nexthpid.pid != INVALID_PAGE) && (!found));// End of DO01
 
-    System.out.println("Exited Do loop in rdfDB get_file_entry");
+    // System.out.println("Exited Do loop in rdfDB get_file_entry");
 
     if (!found) // Entry not found - don't post error, just fail.
     {

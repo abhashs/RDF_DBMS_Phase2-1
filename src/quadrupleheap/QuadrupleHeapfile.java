@@ -1014,6 +1014,7 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       tmpId = SystemDefs.JavabaseDB.get_file_entry(filename);
     }
     catch (Exception e) {
+		System.err.println(e);
       throw new HFDiskMgrException(e,"Heapfile.java: get_file_entry() failed");
     }
 
