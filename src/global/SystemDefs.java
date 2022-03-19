@@ -38,6 +38,7 @@ public class SystemDefs {
       
       init(real_dbname,real_logname, num_pgs, logsize,
 	   bufpoolsize, replacement_policy);
+      System.out.println("SystemDefs done");
     }
   
   
