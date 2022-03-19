@@ -254,9 +254,13 @@ public class rdfDB implements GlobalConst {
   public EID insertEntity(String entityLabel) {
     EID entEID = new EID();
     try {
+      System.out.println("before making entity db");
       entityBTree = new LBTreeFile(dbName + "/ebtree");
+      System.out.println("after making entity db");
       // entityID = entityHeap.insertLabel(entityLabel.getBytes()).returnEID();
       LBTFileScan entityFileScan = entityBTree.new_scan(new StringKey(entityLabel), new StringKey(entityLabel));
+
+      System.out.println("after making entity scan");
       KeyDataEntry nextEntry = entityFileScan.get_next();
 
       // ! Could be wrong
@@ -264,11 +268,9 @@ public class rdfDB implements GlobalConst {
         entEID = ((LLeafData) nextEntry.data).getData().returnEID();
       } else {
 
-        System.out.println("before inserting label");
+        // System.out.println("before inserting label");
         LID entLID = entityHeap.insertLabel(entityLabel.getBytes());
-        System.out.println("before inserting entity");
         entityBTree.insert(new StringKey(entityLabel), entLID);
-        System.out.println("after inserting entity");
         entEID = entLID.returnEID();
       }
       entityFileScan.DestroyBTreeFileScan();
