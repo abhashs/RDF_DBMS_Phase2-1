@@ -226,7 +226,8 @@ public class Quadruple implements GlobalConst{
   */
   public short size()
    {
-      return ((short) (fldOffset[fldCnt] - quadruple_offset));
+     return (short)quadruple_length;
+      // return ((short) (fldOffset[fldCnt] - quadruple_offset));
    }
  
    /** get the offset of a tuple
