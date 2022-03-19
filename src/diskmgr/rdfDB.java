@@ -260,7 +260,6 @@ public class rdfDB implements GlobalConst {
       // entityID = entityHeap.insertLabel(entityLabel.getBytes()).returnEID();
       LBTFileScan entityFileScan = entityBTree.new_scan(new StringKey(entityLabel), new StringKey(entityLabel));
 
-      System.out.println("after making entity scan");
       KeyDataEntry nextEntry = entityFileScan.get_next();
 
       // ! Could be wrong
