@@ -77,6 +77,6 @@ QFTest:QuadrupleTest.java
 	$(JAVAC) TestDriver.java QuadrupleTest.java
 
 qftest: QFTest
-	$(JAVA) tests.QFTest
+	$(JAVA) tests.QuadrupleTest
 
 
