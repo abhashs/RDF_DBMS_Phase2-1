@@ -97,6 +97,7 @@ public class Quadruple implements GlobalConst{
       quadruple_offset = offset;
       quadruple_length = size;
 
+      System.out.println("Size: " + size);
       if (size >= 28){
         setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 0).returnEID());
         setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, offset + 8).returnPID());
