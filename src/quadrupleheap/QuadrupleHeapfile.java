@@ -400,12 +400,13 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	       currentDataPageRid = 
 		 currentDirPage.nextRecord(currentDataPageRid))
 	    {
+			// System.out.println("For running");
 	      atuple = currentDirPage.getRecord(currentDataPageRid);
 	      
 	      dpinfo = new DataPageInfo(atuple);
 	      
 	      // need check the record length == DataPageInfo'slength
-	    //  System.out.println(recLen + " :: " + dpinfo.availspace) ;
+	     System.out.println(recLen + " :: " + dpinfo.availspace) ;
 	       if(recLen <= dpinfo.availspace)
 		 {
 		   found = true;
