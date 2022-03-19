@@ -110,6 +110,7 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 
 		try {
 			tid = f.insertQuadruple(t.returnTupleByteArray());
+			System.out.println(tid.pageNo + "," + tid.slotNo);
 			System.out.println(f.getQuadruple(tid).toString());
 			f.getQuadruple(tid).print();
 		}
