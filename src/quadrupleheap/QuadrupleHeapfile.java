@@ -231,8 +231,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 	  String useId = new String("user.name");
 	  String userAccName;
 	  userAccName = System.getProperty(useId);
-	  System.out.print("userAcc: ");
-	  System.out.println(userAccName);
 	  _fileName = _fileName + userAccName;
 	  
 	  String filenum = Integer.toString(tempfilecount);
