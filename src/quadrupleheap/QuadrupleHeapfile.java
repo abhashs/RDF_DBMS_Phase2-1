@@ -463,6 +463,9 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
 		  
 		  byte [] tmpData = atuple.getQuadrupleByteArray();
 		  currentDataPageRid = currentDirPage.insertRecord(tmpData);
+
+		  System.out.println("CurrentDataPageRID: " + 
+		  currentDataPageRid.pageNo.pid + " " + currentDataPageRid.slotNo);
 		  
 		  QID tmprid = currentDirPage.firstRecord();
 		  
@@ -565,7 +568,6 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       // - currentDirPageId, currentDirPage valid and pinned
       // - dpinfo.pageId, currentDataPageRid valid
       // - currentDataPage is pinned!
-     System.out.println("line 568 quadheapfile") ;
 
       if ((dpinfo.pageId).pid == INVALID_PAGE) // check error!
 	throw new HFException(null, "invalid PageId");
