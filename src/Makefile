@@ -54,7 +54,7 @@ doc:
 # cd tests; make bmtest dbtest; whoami; make hftest bttest indextest jointest sorttest sortmerge qftest
 # cd tests; make bmtest dbtest; whoami; make qftest
 test: 
-	cd tests; make bmtest dbtest; whoami; make hftest bttest indextest jointest sorttest sortmerge qftest
+	cd tests; make qftest
 
 clean:
 	\rm -f $(CLASSPATH)/*.class *~ \#* core $(JARFILES) TRACE
