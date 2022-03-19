@@ -38,7 +38,6 @@ public class SystemDefs {
       
       init(real_dbname,real_logname, num_pgs, logsize,
 	   bufpoolsize, replacement_policy);
-      System.out.println("SystemDefs done");
     }
   
   
@@ -56,7 +55,9 @@ public class SystemDefs {
       
       try {
 	JavabaseBM = new BufMgr(bufpoolsize, replacement_policy);
+      System.out.println("BufMgr created");
 	JavabaseDB = new rdfDB();
+      System.out.println("rdfDB created");
 /*
 	JavabaseCatalog = new Catalog(); 
 */
