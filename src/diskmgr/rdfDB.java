@@ -69,6 +69,7 @@ public class rdfDB implements GlobalConst {
       DiskMgrException {
 
     name = fname;
+    dbName = fname;
 
     // Creaat a random access file
     fp = new RandomAccessFile(fname, "rw");
@@ -455,6 +456,8 @@ public class rdfDB implements GlobalConst {
       DiskMgrException {
 
     name = new String(fname);
+    //! TEST
+    dbName = fname;
     num_pages = (num_pgs > 2) ? num_pgs : 2;
 
     File DBfile = new File(name);
