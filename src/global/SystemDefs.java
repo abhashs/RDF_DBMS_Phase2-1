@@ -7,6 +7,7 @@ import catalog.*;
 public class SystemDefs {
   public static BufMgr	JavabaseBM;
   //Originally DB
+  public static String test = "beep";
   public static rdfDB	JavabaseDB;
   public static Catalog	JavabaseCatalog;
   
