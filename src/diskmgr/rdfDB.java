@@ -93,6 +93,7 @@ public class rdfDB implements GlobalConst {
    */
   public rdfDB() { 
     try {
+      System.out.println( "Before quadHeapfile");
       quadHeap = new QuadrupleHeapfile(dbName + "/qhfile");
       System.out.println("After quadHeapfile");
       entityHeap = new LabelHeapfile(dbName + "/ehfile");
