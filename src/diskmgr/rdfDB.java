@@ -1002,7 +1002,7 @@ public class rdfDB implements GlobalConst {
 
     if (!found) // Entry not found - don't post error, just fail.
     {
-      // System.out.println("entry NOT found");
+      System.out.println("entry NOT found");
       return null;
     }
 
