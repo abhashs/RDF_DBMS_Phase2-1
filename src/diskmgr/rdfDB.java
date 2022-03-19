@@ -4,8 +4,6 @@ package diskmgr;
 
 import java.io.*;
 
-import javax.swing.text.html.parser.Entity;
-
 import btree.KeyDataEntry;
 import btree.LBT;
 import btree.LBTFileScan;
