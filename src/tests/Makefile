@@ -11,19 +11,19 @@ JAVA  = $(JDKPATH)/bin/java  -classpath $(CLASSPATH)
 
 # test buffer manager
 
-# BMTest:BMTest.java
-# 	$(JAVAC) TestDriver.java BMTest.java
+BMTest:BMTest.java
+	$(JAVAC) TestDriver.java BMTest.java
 
-# bmtest: BMTest
-# 	$(JAVA) tests.BMTest
+bmtest: BMTest
+	$(JAVA) tests.BMTest
 
-# # test disk manager
+# test disk manager
 
-# DBTest:DBTest.java
-# 	$(JAVAC) TestDriver.java DBTest.java
+DBTest:DBTest.java
+	$(JAVAC) TestDriver.java DBTest.java
 
-# dbtest: DBTest
-# 	$(JAVA) tests.DBTest
+dbtest: DBTest
+	$(JAVA) tests.DBTest
 
 # # test heapfile 
 
