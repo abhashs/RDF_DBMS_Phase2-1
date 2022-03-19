@@ -263,9 +263,12 @@ public class rdfDB implements GlobalConst {
       if (nextEntry != null && ((StringKey) (nextEntry.key)).getKey().equals(entityLabel)) {
         entEID = ((LLeafData) nextEntry.data).getData().returnEID();
       } else {
-        LID entLID = entityHeap.insertLabel(entityLabel.getBytes());
 
+        System.out.println("before inserting label");
+        LID entLID = entityHeap.insertLabel(entityLabel.getBytes());
+        System.out.println("before inserting entity");
         entityBTree.insert(new StringKey(entityLabel), entLID);
+        System.out.println("after inserting entity");
         entEID = entLID.returnEID();
       }
       entityFileScan.DestroyBTreeFileScan();

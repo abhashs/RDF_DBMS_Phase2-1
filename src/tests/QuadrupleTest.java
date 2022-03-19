@@ -151,13 +151,10 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 		PID[] pids = new PID[6];
 
 		for(int i = 0; i < names.length; i++) {
-			System.out.println("before inserting name");
+			// System.out.println("before inserting name");
 			lids[i] = SystemDefs.JavabaseDB.insertEntity(names[i]).returnLID();
-			System.out.println("before inserting pred");
 			pids[i] = SystemDefs.JavabaseDB.insertPredicate(preds[i]);
-			System.out.println("before inserting object");
 			lids[i+6] = SystemDefs.JavabaseDB.insertEntity(objects[i]).returnLID();
-			System.out.println("after inserting object");
 		}
 
 		for (int i = 0; i < 6; i++){
