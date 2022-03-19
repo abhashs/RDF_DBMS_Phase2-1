@@ -98,7 +98,7 @@ public class rdfDB implements GlobalConst {
       predicateHeap = new LabelHeapfile(dbName + "/phfile");
     } 
     catch (Exception e){
-      System.out.println(e.toString());
+      System.err.println(e);
     }
   }
 

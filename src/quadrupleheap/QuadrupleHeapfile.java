@@ -256,8 +256,11 @@ public class QuadrupleHeapfile implements Filetype,  GlobalConst {
       
       Page apage = new Page();
       _firstDirPageId = null;
-      if (_ftype == ORDINARY)
+      if (_ftype == ORDINARY){
+		System.out.println("before file entry");
 	_firstDirPageId = get_file_entry(_fileName);
+		System.out.println("after file entry");
+	  }
       
       if(_firstDirPageId==null)
 	{
