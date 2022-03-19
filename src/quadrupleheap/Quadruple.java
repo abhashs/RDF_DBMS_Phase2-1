@@ -64,7 +64,8 @@ public class Quadruple implements GlobalConst{
   {
        // Creat a new tuple
        //! Maybe change to max_size
-       data = new byte[QUADRUPLE_SIZE];
+      //  data = new byte[QUADRUPLE_SIZE];
+       data = new byte[max_size];
        quadruple_offset = 0;
        quadruple_length = QUADRUPLE_SIZE;
        Subject = new EID();
@@ -84,9 +85,9 @@ public class Quadruple implements GlobalConst{
       quadruple_offset = offset;
       quadruple_length = QUADRUPLE_SIZE;
 
-      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
-      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
-      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, offset + 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 16).returnEID());
       setConfidence(Convert.getFloValue(offset + 24, aquadruple));
   }
 
@@ -97,9 +98,9 @@ public class Quadruple implements GlobalConst{
       quadruple_length = size;
 
       if (size >= 28){
-        setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
-        setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
-        setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+        setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 0).returnEID());
+        setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, offset + 8).returnPID());
+        setObjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 16).returnEID());
         setConfidence(Convert.getFloValue(offset + 24, aquadruple));
       }
 
@@ -187,9 +188,9 @@ public class Quadruple implements GlobalConst{
       quadruple_offset = offset;
       quadruple_length = QUADRUPLE_SIZE;
 
-      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, 0).returnEID());
-      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, 8).returnPID());
-      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, 16).returnEID());
+      setSubjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(aquadruple, offset + 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(aquadruple, offset + 16).returnEID());
       setConfidence(Convert.getFloValue(offset + 24, aquadruple));
    }
 
@@ -201,13 +202,13 @@ public class Quadruple implements GlobalConst{
   */
  public void quadrupleSet(byte[] fromQuadruple, int offset) throws IOException
   {
-      System.arraycopy(fromQuadruple, offset, data, 0, QUADRUPLE_SIZE);
+      System.arraycopy(fromQuadruple, offset, data, 0, quadruple_length);
       quadruple_offset = 0;
       quadruple_length = QUADRUPLE_SIZE;
 
-      setSubjectID(Quadruple.getLIDfromByteArray(fromQuadruple, 0).returnEID());
-      setPredicateID(Quadruple.getLIDfromByteArray(fromQuadruple, 8).returnPID());
-      setObjectID(Quadruple.getLIDfromByteArray(fromQuadruple, 16).returnEID());
+      setSubjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 0).returnEID());
+      setPredicateID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 8).returnPID());
+      setObjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 16).returnEID());
       setConfidence(Convert.getFloValue(offset + 24, fromQuadruple));
   }
   
