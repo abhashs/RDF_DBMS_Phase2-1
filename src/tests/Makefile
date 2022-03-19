@@ -1,5 +1,8 @@
 # modify the paths appropriately
-JDKPATH = /usr/java/jdk1.3.1_02
+# JDKPATH = /usr/java/jdk1.3.1_02
+# JDKPATH = /usr/lib/jvm/java-8-openjdk-amd64
+JDKPATH = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64
+# LIBPATH = /afs/asu.edu/users/a/k/s/akshrest/CSE510/minjava/javaminibase/src
 LIBPATH = .:..
 CLASSPATH = $(LIBPATH)
 BINPATH = $(JDKPATH)/bin
@@ -70,6 +73,10 @@ SMJoin:SM_JoinTest.java
 sortmerge: SMJoin
 	$(JAVA) tests.SM_JoinTest
 
+QFTest:QuadrupleTest.java
+	$(JAVAC) QuadrupleTest.java TestDriver.java
 
+qftest: QFTest
+	$(JAVA) tests.QFTest
 
 

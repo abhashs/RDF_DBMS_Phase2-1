@@ -38,6 +38,7 @@ public class rdfDB implements GlobalConst {
   private LBTreeFile predicateBTree;
 
   private LBTreeFile distinctSubjectsTree;
+  private LBTreeFile distinctObjectsTree;
 
   private int quadCnt;
 
@@ -207,8 +208,57 @@ public class rdfDB implements GlobalConst {
 
 
   public int getObjectCnt(){
+    int objectCount = 0;
 
-    return -1;
+    try {
+      QBTreeFile qbtree = new QBTreeFile(dbName + "/qbtree");
+      distinctObjectsTree = new LBTreeFile(dbName + "/dobtree");
+
+
+      QBTFileScan qbscan = qbtree.new_scan(null, null);
+      LBTFileScan distinctObjectsScan = null;
+
+      KeyDataEntry nextEntry = qbscan.get_next();
+
+      while(nextEntry != null){
+        String key = ((StringKey)nextEntry.key).getKey();
+        String[] keyTokens = key.split(",");
+
+        String objectByPageNoSlotNo = keyTokens[4]  + keyTokens[5];
+       
+        distinctObjectsScan = distinctSubjectsTree.new_scan(
+          new StringKey(objectByPageNoSlotNo),
+          new StringKey(objectByPageNoSlotNo)
+        );
+
+        KeyDataEntry nextDistinctEntry = distinctObjectsScan.get_next();
+        if (nextDistinctEntry == null){
+          LID distinctLID = new LID(
+            new PageId(Integer.parseInt(keyTokens[4])), 
+            Integer.parseInt(keyTokens[5])
+          );
+          distinctSubjectsTree.insert(new StringKey(objectByPageNoSlotNo), distinctLID);
+        }
+
+        nextEntry = qbscan.get_next();
+      }
+      distinctObjectsScan.DestroyBTreeFileScan();
+
+      distinctObjectsScan = distinctSubjectsTree.new_scan(null, null);
+
+      while(distinctObjectsScan.get_next() != null){ objectCount++; }
+
+      qbtree.close();
+      qbscan.DestroyBTreeFileScan();
+      distinctObjectsScan.DestroyBTreeFileScan();
+      distinctSubjectsTree.close();
+    } 
+    catch(Exception e){
+      System.err.println(e);
+    }
+
+    return objectCount;
+
   }
 
 
