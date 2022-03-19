@@ -638,6 +638,8 @@ public class BMTest {
 
      dbstatus = bmt.runTests();
 
+     File austin = new File("austin");
+
      if (dbstatus != true) {
        System.err.println ("Error encountered during buffer manager tests:\n");
        Runtime.getRuntime().exit(1);
