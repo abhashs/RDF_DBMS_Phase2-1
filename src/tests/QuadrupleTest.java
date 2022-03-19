@@ -121,6 +121,86 @@ class QuadrupleDriver extends TestDriver implements GlobalConst {
 		return status;
 	}
 
+	private byte[] toByteArray(LID subject, PID pred, LID object, float cf){
+		byte[] out = new byte[28];
+		try {
+			Convert.setIntValue(subject.pageNo.pid , 0, out);
+			Convert.setIntValue(subject.slotNo, 4, out);
+			Convert.setIntValue(pred.pageNo.pid, 8, out);
+			Convert.setIntValue(pred.slotNo, 12, out);
+			Convert.setIntValue(object.pageNo.pid, 16, out);
+			Convert.setIntValue(object.slotNo, 20, out);
+			Convert.setFloValue(cf, 24, out);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return out;
+	}
+
+	protected boolean test2(){
+		boolean status = true;
+
+		System.out.println("------------------------ TEST 2 --------------------------");
+
+		String[] names = {"abhash", "austin", "park", "adam", "ryan", "zuwei"};
+		String[] preds = {"owns", "drives", "eats", "lives", "runs", "flies"};
+		String[] objects = {"car", "food", "fordf150", "casino", "house", "boeing"};
+		float[] cfs = {(float) .11, (float) .214, (float) .42, (float) .99, (float) .83, (float) .45};
+
+		LID[] lids = new LID[12];
+		PID[] pids = new PID[6];
+
+		for(int i = 0; i < names.length; i++) {
+			lids[i] = SystemDefs.JavabaseDB.insertEntity(names[i]).returnLID();
+			pids[i] = SystemDefs.JavabaseDB.insertPredicate(preds[i]);
+			lids[i+6] = SystemDefs.JavabaseDB.insertEntity(objects[i]).returnLID();
+		}
+
+		for (int i = 0; i < 6; i++){
+			// Quadruple quad = new Quadruple(toByteArray(lids[i], pids[i], lids[i+6], cfs[i]), 0);
+			SystemDefs.JavabaseDB.insertQuadruple(toByteArray(lids[i], pids[i], lids[i+6], cfs[i]));
+		}
+
+		System.out.println(
+			SystemDefs.JavabaseDB.getQuadrupleCnt() + " " +
+			SystemDefs.JavabaseDB.getEntityCnt() + " " +
+			SystemDefs.JavabaseDB.getPredicateCnt() + " " +
+			SystemDefs.JavabaseDB.getObjectCnt() + " ");
+
+		// // Create unsorted data file "test1.in"
+		// QID             tid;
+		// QuadrupleHeapfile        f = null;
+		// try 
+		// {
+		// 	f = new QuadrupleHeapfile("test1.in");
+		// }
+		// catch (Exception e) {
+		// 	status = FAIL;
+		// 	e.printStackTrace();
+		// }
+
+		// q1 = new Quadruple();
+		// try {
+		// 	q1.setConfidence((float)1.5);
+		// } catch (IOException e1) {
+		// 	// TODO Auto-generated catch block
+		// 	e1.printStackTrace();
+		// }
+
+		// try {
+		// 	tid = f.insertQuadruple(q1.returnTupleByteArray());
+		// }
+		// catch (Exception e) {
+		// 	status = FAIL;
+		// 	e.printStackTrace();
+		// }
+
+
+
+		System.err.println("------------------- TEST 2 completed ---------------------\n");
+		return status;
+	}
+
 	protected String testName()
 	{
 		return "Quadruple";
