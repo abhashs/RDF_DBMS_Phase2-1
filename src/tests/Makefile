@@ -74,7 +74,7 @@ JAVA  = $(JDKPATH)/bin/java  -classpath $(CLASSPATH)
 # 	$(JAVA) tests.SM_JoinTest
 
 QFTest:QuadrupleTest.java
-	$(JAVAC) QuadrupleTest.java TestDriver.java
+	$(JAVAC) TestDriver.java QuadrupleTest.java
 
 qftest: QFTest
 	$(JAVA) tests.QFTest
