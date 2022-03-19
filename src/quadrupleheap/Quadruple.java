@@ -202,7 +202,8 @@ public class Quadruple implements GlobalConst{
   */
  public void quadrupleSet(byte[] fromQuadruple, int offset) throws IOException
   {
-      System.arraycopy(fromQuadruple, offset, data, 0, quadruple_length);
+      // System.arraycopy(fromQuadruple, offset, data, 0, quadruple_length);
+      System.arraycopy(fromQuadruple, offset, data, 0, QUADRUPLE_SIZE);
       quadruple_offset = 0;
       quadruple_length = QUADRUPLE_SIZE;
 
