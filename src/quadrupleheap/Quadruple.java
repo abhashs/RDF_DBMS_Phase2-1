@@ -64,8 +64,8 @@ public class Quadruple implements GlobalConst{
   {
        // Creat a new tuple
        //! Maybe change to max_size
-      //  data = new byte[QUADRUPLE_SIZE];
-       data = new byte[max_size];
+       data = new byte[QUADRUPLE_SIZE];
+      //  data = new byte[max_size];
        quadruple_offset = 0;
        quadruple_length = QUADRUPLE_SIZE;
        Subject = new EID();
