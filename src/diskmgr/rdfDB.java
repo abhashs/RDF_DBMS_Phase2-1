@@ -4,6 +4,8 @@ package diskmgr;
 
 import java.io.*;
 
+import org.w3c.dom.Attr;
+
 import btree.KeyDataEntry;
 import btree.LBT;
 import btree.LBTFileScan;
@@ -21,6 +23,7 @@ import labelheap.Label;
 import labelheap.LabelHeapfile;
 import quadrupleheap.Quadruple;
 import quadrupleheap.QuadrupleHeapfile;
+import quadrupleheap.TScan;
 import btree.LLeafData;
 
 public class rdfDB implements GlobalConst {
@@ -37,6 +40,8 @@ public class rdfDB implements GlobalConst {
 
   private LBTreeFile distinctSubjectsTree;
   private LBTreeFile distinctObjectsTree;
+  
+  private QBTreeFile indexingBtree;
 
   private int quadCnt;
 
@@ -1234,6 +1239,175 @@ public class rdfDB implements GlobalConst {
     }
 
   } // end of unpinPage
+  
+  
+  //-------------INDEXING-----------------------------
+  
+  // Subject, Predicate
+  public void genIndexOne() {
+	  try {
+		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
+		  
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  predicateHeap = new LabelHeapfile(name + "phfile");
+		  
+		  TScan qScan = new TScan(quadHeap);
+		  
+		  QID qid = new QID();
+		  Quadruple currentQuadruple = qScan.getNext(qid);
+		  
+		  while( currentQuadruple != null ) {
+			  Label subjectLabel = entityHeap.getLabel(currentQuadruple.getSubjectID().returnLID());
+			  Label predicateLabel = predicateHeap.getLabel(currentQuadruple.getPredicateID().returnLID());
+			    
+			  indexingBtree.insert(new StringKey(
+					  subjectLabel.getLabel() + "," + predicateLabel.getLabel()), qid);
+			  
+			  currentQuadruple = qScan.getNext(qid);
+		  }
+		  
+		  qScan.closescan();
+		  indexingBtree.close();
+
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
+  
+  
+  //Subject Object
+  public void genIndexTwo() {
+	  try {
+		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
+		  
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  
+		  TScan qScan = new TScan(quadHeap);
+		  
+		  QID qid = new QID();
+		  Quadruple currentQuadruple = qScan.getNext(qid);
+		  
+		  while( currentQuadruple != null ) {
+			  Label subjectLabel = entityHeap.getLabel(currentQuadruple.getSubjectID().returnLID());
+			  Label objectLabel = entityHeap.getLabel(currentQuadruple.getObjectID().returnLID());
+			  
+	
+			  
+			  indexingBtree.insert(new StringKey(
+					  subjectLabel.getLabel() + "," + objectLabel.getLabel()), qid);
+			  
+			  currentQuadruple = qScan.getNext(qid);
+		  }
+		  
+		  qScan.closescan();
+		  indexingBtree.close();
+
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
+  
+
+  //Object Confidence
+  public void genIndexThree() {
+	  try {
+		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
+		  
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  
+		  TScan qScan = new TScan(quadHeap);
+		  
+		  QID qid = new QID();
+		  Quadruple currentQuadruple = qScan.getNext(qid);
+		  
+		  while( currentQuadruple != null ) {
+			  Label objectLabel = entityHeap.getLabel(currentQuadruple.getObjectID().returnLID());
+			  
+			  indexingBtree.insert(new StringKey(
+					  objectLabel.getLabel() + "," + currentQuadruple.getConfidence()), qid);
+			  
+			  currentQuadruple = qScan.getNext(qid);
+		  }
+		  
+		  qScan.closescan();
+		  indexingBtree.close();
+
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
+  
+  
+  //Subject Confidence
+  public void genIndexFour() {
+	  try {
+		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
+		  
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  
+		  TScan qScan = new TScan(quadHeap);
+		  
+		  QID qid = new QID();
+		  Quadruple currentQuadruple = qScan.getNext(qid);
+		  
+		  while( currentQuadruple != null ) {
+			  Label subjectLabel = entityHeap.getLabel(currentQuadruple.getSubjectID().returnLID());
+			  
+			  indexingBtree.insert(new StringKey(
+					  subjectLabel.getLabel() + "," + currentQuadruple.getConfidence()), qid);
+			  
+			  currentQuadruple = qScan.getNext(qid);
+		  }
+		  qScan.closescan();
+		  indexingBtree.close();
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
+  
+  //Object Predicate
+  public void genIndexFive() {
+	  try {
+		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
+		  
+		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+		  entityHeap = new LabelHeapfile(name + "/ehfile");
+		  predicateHeap = new LabelHeapfile(name + "phfile");
+		  
+		  TScan qScan = new TScan(quadHeap);
+		  
+		  QID qid = new QID();
+		  Quadruple currentQuadruple = qScan.getNext(qid);
+		  
+		  while( currentQuadruple != null ) {
+			  Label objectLabel = entityHeap.getLabel(currentQuadruple.getObjectID().returnLID());
+			  Label predicateLabel = predicateHeap.getLabel(currentQuadruple.getPredicateID().returnLID());
+			    
+			  indexingBtree.insert(new StringKey(
+					  objectLabel.getLabel() + "," + predicateLabel.getLabel()), qid);
+			  
+			  currentQuadruple = qScan.getNext(qid);
+		  }
+		  
+		  qScan.closescan();
+		  indexingBtree.close();
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
+  
+  
+  
+  
 
 }// end of rdfDB class
 
@@ -1470,5 +1644,6 @@ class DBDirectoryPage extends DBHeaderPage { // implements PageUsedBytes
   public void openPage(Page page) {
     data = page.getpage();
   }
+  
 
 }
