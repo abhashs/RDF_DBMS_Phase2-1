@@ -54,11 +54,8 @@ public class Query {
 				SystemDefs sysdefs = new SystemDefs(rdfdbname, 0, numBuf, "Clock", indexOption);
 				
 				SystemDefs.JavabaseDB.init();
-//				System.out.println(SystemDefs.JavabaseDB.getQuadrupleHeap().getRecCnt());
-//				System.out.println( SystemDefs.JavabaseDB.quadHeap );
-				System.out.println(rdfdbname);
+				
 				QuadrupleHeapfile qHeap = new QuadrupleHeapfile(rdfdbname + "/qhfile");
-				System.out.println(qHeap.getRecCnt());
 				
 				Stream stream = SystemDefs.JavabaseDB.openStream(
 						new QuadrupleOrder(order), subjectFilter, predicateFilter, objectFilter, confidenceFilter);

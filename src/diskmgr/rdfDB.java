@@ -195,7 +195,7 @@ public class rdfDB implements GlobalConst {
   public void init() {
 	  //DO NOT USE IN FINAL
 	  try {
-		  System.out.println(name);
+//		  System.out.println(name);
 		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
 		  entityHeap = new LabelHeapfile(name + "/ehfile");
 		  predicateHeap = new LabelHeapfile(name + "/phfile");

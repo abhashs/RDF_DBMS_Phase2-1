@@ -332,7 +332,6 @@ public class QBTreeFile extends QIndexFile
       
       // ASSERTIONS:
       // - headerPage, headerPageId valid, pinned and marked as dirty
-      
     }
   
   
