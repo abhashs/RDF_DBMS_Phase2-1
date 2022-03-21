@@ -15,7 +15,6 @@ public class QuadrupleUtils
 {
 	
 //	private int compare;
-	
 	private static int cascadeCompare(Quadruple q1, Quadruple q2, int[] orderInts) {
 		int count = 0;
 		int result = 0;

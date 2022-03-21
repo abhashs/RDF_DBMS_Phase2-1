@@ -30,7 +30,7 @@ public class rdfDB implements GlobalConst {
 
   private static final int bits_per_page = MAX_SPACE * 8;
 
-  private QuadrupleHeapfile quadHeap;
+  public QuadrupleHeapfile quadHeap;
   private LabelHeapfile entityHeap;
   private LabelHeapfile predicateHeap;
 
@@ -132,6 +132,22 @@ public class rdfDB implements GlobalConst {
 
   public rdfDB(int type) {
 	  indexOption = type;
+	  
+//	  try {
+//		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+//		  entityHeap = new LabelHeapfile(name + "/ehfile");
+//		  predicateHeap = new LabelHeapfile(name + "/phfile");
+////		  tempQHeap = new QuadrupleHeapfile(name + "/thfile");
+//		  
+//		  quadBTree = new QBTreeFile(name + "/qbtree", AttrType.attrString, 255, 1);
+//		  entityBTree = new LBTreeFile(name + "/ebtree", AttrType.attrString, 255, 1);
+//		  predicateBTree = new LBTreeFile(name + "/pbtree", AttrType.attrString, 255, 1);
+//		  distinctSubjectsTree = new LBTreeFile(name + "/dsbtree", AttrType.attrString, 255, 1);
+//		  distinctObjectsTree = new LBTreeFile(name + "/dobtree", AttrType.attrString, 255, 1);
+//	  }
+//	  catch (Exception e) {
+//		  e.printStackTrace();
+//	  }
 //	  try {
 //		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
 //		  entityHeap = new LabelHeapfile(name + "/ehfile");
@@ -179,6 +195,7 @@ public class rdfDB implements GlobalConst {
   public void init() {
 	  //DO NOT USE IN FINAL
 	  try {
+		  System.out.println(name);
 		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
 		  entityHeap = new LabelHeapfile(name + "/ehfile");
 		  predicateHeap = new LabelHeapfile(name + "/phfile");
@@ -1386,9 +1403,7 @@ public class rdfDB implements GlobalConst {
 		  while( currentQuadruple != null ) {
 			  Label subjectLabel = entityHeap.getLabel(currentQuadruple.getSubjectID().returnLID());
 			  Label objectLabel = entityHeap.getLabel(currentQuadruple.getObjectID().returnLID());
-			  
-	
-			  
+	  
 			  indexingBtree.insert(new StringKey(
 					  subjectLabel.getLabel() + "," + objectLabel.getLabel()), qid);
 			  

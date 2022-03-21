@@ -26,21 +26,21 @@ public class BatchInsert implements GlobalConst  {
 		
 		// 1000 pages? or something else
 		
-		
 		File databaseFile = new File(rdfDbName);
 		File testFile = new File("src/tests/" + dataFilename);
 		
-		SystemDefs sysdef = new SystemDefs( rdfDbName, 1000, NUMBUF, "Clock", indexOption);
+//		SystemDefs sysdef = new SystemDefs(  "src/tests/" + rdfDbName, 1000, NUMBUF, "Clock", indexOption);
 		
-//		if (databaseFile.exists()) {
-//			System.out.println("Loading Db");
-//			SystemDefs sysdef = new SystemDefs( rdfDbName, 0, NUMBUF, "Clock", indexOption);
-//		} else {
-//			System.out.println("New Db");
-//			SystemDefs sysdef = new SystemDefs( rdfDbName, 10000, NUMBUF, "Clock", indexOption);
-//		}
-		
+		if (databaseFile.exists()) {
+			System.out.println("Loading Db");
+			SystemDefs sysdef = new SystemDefs( rdfDbName, 0, NUMBUF, "Clock", indexOption);
+		} else {
+			System.out.println("New Db");
+			SystemDefs sysdef = new SystemDefs( rdfDbName, 10000, NUMBUF, "Clock", indexOption);
+		}
 		SystemDefs.JavabaseDB.init();
+		
+//		SystemDefs.JavabaseDB.init();
 		
 		try {
 			List <String> testFileLines = Files.readAllLines(testFile.toPath());

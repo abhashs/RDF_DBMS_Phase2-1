@@ -2,12 +2,14 @@ package tests;
 
 import java.io.File;
 
+import diskmgr.Pcounter;
 import diskmgr.Stream;
 import global.QID;
 import global.QuadrupleOrder;
 import global.SystemDefs;
 import labelheap.LabelHeapfile;
 import quadrupleheap.Quadruple;
+import quadrupleheap.QuadrupleHeapfile;
 
 public class Query {
 	
@@ -45,11 +47,18 @@ public class Query {
 		
 		int numBuf = Integer.parseInt(args[7]);
 		
-//		File databaseFile = new File(rdfdbname);
-		if (new File(rdfdbname).exists()){
-			
+		File databaseFile = new File(rdfdbname);
+		if (databaseFile.exists()){
 			try {
+				//Maybe 1000
 				SystemDefs sysdefs = new SystemDefs(rdfdbname, 0, numBuf, "Clock", indexOption);
+				
+				SystemDefs.JavabaseDB.init();
+//				System.out.println(SystemDefs.JavabaseDB.getQuadrupleHeap().getRecCnt());
+//				System.out.println( SystemDefs.JavabaseDB.quadHeap );
+				System.out.println(rdfdbname);
+				QuadrupleHeapfile qHeap = new QuadrupleHeapfile(rdfdbname + "/qhfile");
+				System.out.println(qHeap.getRecCnt());
 				
 				Stream stream = SystemDefs.JavabaseDB.openStream(
 						new QuadrupleOrder(order), subjectFilter, predicateFilter, objectFilter, confidenceFilter);
@@ -67,6 +76,15 @@ public class Query {
 				e.printStackTrace();
 			}
 		}
+		
+//		System.out.println("EntityCount: " + SystemDefs.JavabaseDB.getEntityCnt());
+//		System.out.println("SubjectCount: " + SystemDefs.JavabaseDB.getSubjectCnt());
+//		System.out.println("PredicateCount: " + SystemDefs.JavabaseDB.getPredicateCnt());
+//		System.out.println("ObjectCount: " + SystemDefs.JavabaseDB.getObjectCnt());
+//		System.out.println("Quadruple: " + SystemDefs.JavabaseDB.getQuadrupleCnt());
+//		
+//		System.out.println(Pcounter.rcounter);
+//		System.out.println(Pcounter.wcounter);
 	}
 	
 }
