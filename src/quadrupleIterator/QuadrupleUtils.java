@@ -14,7 +14,47 @@ import quadrupleIterator.QuadrupleUnknowAttrType;;
 public class QuadrupleUtils
 {
 	
-	private int compare;
+//	private int compare;
+	
+	private static int cascadeCompare(Quadruple q1, Quadruple q2, int[] orderInts) {
+		int count = 0;
+		int result = 0;
+		
+		while(result == 0) {
+			result = QuadrupleUtils.CompareQuadrupleWithQuadruple(q1, q2, orderInts[count]);
+			count++;
+		}
+		return result;
+	}
+	
+	
+	public static int compareByOrder(Quadruple q1, Quadruple q2, QuadrupleOrder order) {
+		int quadOrder = order.quadrupleOrder;
+		
+		if (quadOrder == QuadrupleOrder.SubjectPredicateObjectConfidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderOneIntArray);
+		}
+		else if (quadOrder == QuadrupleOrder.PredicateSubjectObjectConfidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderTwoArray);
+		}
+		else if (quadOrder == QuadrupleOrder.SubjectConfidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderThreeIntArray);
+		}
+		else if (quadOrder == QuadrupleOrder.PredicateConfidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderFourArray);
+		}
+		else if (quadOrder == QuadrupleOrder.ObjectConfidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderFiveArray);
+		}
+		else if (quadOrder == QuadrupleOrder.Confidence) {
+			return cascadeCompare(q1, q2, QuadrupleOrder.orderSixArray);
+		}
+		else {
+			System.err.println("Wrong order in compareByOrder");
+			
+			return 2;
+		}
+	}
   
   /**
    * This function compares a tuple with another tuple in respective field, and
@@ -69,7 +109,7 @@ public class QuadrupleUtils
 			else if (quadruple_fld_no == 2) {
 				LabelHeapfile entityHeapfile = new LabelHeapfile(SystemDefs.JavabaseDBName + "/phfile");
 				LID q1PredID = q1.getPredicateID().returnLID();
-				LID q2PredID = q1.getPredicateID().returnLID();
+				LID q2PredID = q2.getPredicateID().returnLID();
 				
 				int howMuchGreater = entityHeapfile.getLabel(q1PredID).getLabel().compareTo(
 						entityHeapfile.getLabel(q2PredID).getLabel());
@@ -83,6 +123,17 @@ public class QuadrupleUtils
 				else {
 					return 0;
 				}		
+			}
+			else if (quadruple_fld_no == 4) {
+				if (q1.getConfidence() > q2.getConfidence()) {
+					return 1;
+				}
+				else if (q1.getConfidence() < q2.getConfidence()) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
 			}
 
 		} catch (Exception e) {

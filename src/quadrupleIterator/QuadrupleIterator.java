@@ -6,6 +6,7 @@ import bufmgr.*;
 import index.*;
 import iterator.PredEvalException;
 import iterator.UnknownKeyTypeException;
+import quadrupleheap.Quadruple;
 
 import java.io.*;
 
@@ -40,7 +41,7 @@ public abstract class QuadrupleIterator implements Flags {
    *@exception UnknownKeyTypeException key type unknown
    *@exception Exception other exceptions
    */
-  public abstract Tuple get_next() 
+  public abstract Quadruple get_next() 
     throws IOException,
 	   QuadrupleJoinsException ,
 	   IndexException,

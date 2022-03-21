@@ -1,660 +1,485 @@
-// package diskmgr;
+package diskmgr;
 
-// /** JAVA */
-// /**
-//  * Scan.java-  class Scan
-//  *
-//  */
+/** JAVA */
+/**
+ * Scan.java-  class Scan
+ *
+ */
 
-// import java.io.*;
-// import global.*;
-// import heap.HFBufMgrException;
-// import heap.HFPage;
-// import heap.Heapfile;
-// import heap.InvalidTupleSizeException;
-// import heap.DataPageInfo;
-// import bufmgr.*;
-// import diskmgr.*;
+import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import btree.KeyDataEntry;
+import btree.QBTFileScan;
+import btree.QBTreeFile;
+import btree.QLeafData;
+import btree.StringKey;
+import global.*;
+import labelheap.Label;
+import labelheap.LabelHeapfile;
+import quadrupleIterator.QuadrupleSort;
+import quadrupleheap.Quadruple;
+import quadrupleheap.QuadrupleHeapfile;
+import quadrupleheap.TScan;
+import bufmgr.*;
+import diskmgr.*;
 
 
-// /**	
-//  * A Scan object is created ONLY through the function openScan
-//  * of a HeapFile. It supports the getNext interface which will
-//  * simply retrieve the next record in the heapfile.
-//  *
-//  * An object of type scan will always have pinned one directory page
-//  * of the heapfile.
-//  */
-// public class Stream implements GlobalConst{
+/**	
+ * A Scan object is created ONLY through the function openScan
+ * of a HeapFile. It supports the getNext interface which will
+ * simply retrieve the next record in the heapfile.
+ *
+ * An object of type scan will always have pinned one directory page
+ * of the heapfile.
+ */
+public class Stream implements GlobalConst{
+	
+	private TScan tempScan;
+	private QuadrupleHeapfile tempQHeap;
  
-//     /**
-//      * Note that one record in our way-cool HeapFile implementation is
-//      * specified by six (6) parameters, some of which can be determined
-//      * from others:
-//      */
+    /**
+     * Note that one record in our way-cool HeapFile implementation is
+     * specified by six (6) parameters, some of which can be determined
+     * from others:
+     */
+	private QuadrupleSort quadrupleSort;
+	
+	public boolean checkIfFiltersSatisfy(boolean[] nullFilters, Quadruple quadruple, rdfDB rdfdatabase, 
+			String subjectFilter, String predicateFilter, String objectFilter, float confidenceFilter) throws Exception {
+		for (int i = 0; i < nullFilters.length; i++) {
+				if (nullFilters[i]) {
+					switch (i) {
+						case 0: {
+							if (rdfdatabase.getEntityHeap().getLabel(
+									quadruple.getSubjectID().returnLID()).getLabel().compareTo(subjectFilter) != 0) {
+								return false;
+							}
+						}
+						case 1: {
+							if (rdfdatabase.getPredicateHeap().getLabel(
+									quadruple.getPredicateID().returnLID()).getLabel().compareTo(predicateFilter) != 0) {
+								return false;
+							}
+						}
+						case 2: {
+							if (rdfdatabase.getEntityHeap().getLabel(
+									quadruple.getObjectID().returnLID()).getLabel().compareTo(objectFilter) != 0) {
+								return false;
+							}
+						}
+						case 3: {
+							if (quadruple.getConfidence() != confidenceFilter) {
+								return false;
+							}
+						}
+							
+					}
+				}
+			}
+		return true;
+	}
+	
+	public void scanQuadHeapWithFilters(rdfDB rdfdatabase, boolean[] nullFilters, 
+			String subjectFilter, String predicateFilter, String objectFilter, float confidenceFilter) throws Exception {
+		tempQHeap = new QuadrupleHeapfile("/thfile"); 
+		TScan qscan = new TScan(tempQHeap);
+		
+		QID qid = new QID();
+		Quadruple quadruple = qscan.getNext(qid);
+		while (quadruple != null) {
+			boolean satisfiesFilters = checkIfFiltersSatisfy(nullFilters, quadruple, rdfdatabase, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+			
+			if (satisfiesFilters) {
+				tempQHeap.insertQuadruple(quadruple.getQuadrupleByteArray());
+			}
+			quadruple = qscan.getNext(qid);
+		}
+		qscan.closescan();
+	}
+	
+	public boolean subjectFilterCheck(KeyDataEntry nextEntry, QuadrupleHeapfile quadHeapfile, 
+			LabelHeapfile entityHeapfile, String filter) throws Exception {
+		QID qid = ((QLeafData) nextEntry.data).getData();
+		Quadruple quadruple = quadHeapfile.getQuadruple(qid);
+		
+		String quadSubject = entityHeapfile.getLabel(quadruple.getSubjectID().returnLID()).getLabel();
+		
+		if (quadSubject != filter) {
+			return false;
+		}	
+		return true;
+	}
+	
+	public boolean predicateFilterCheck(KeyDataEntry nextEntry, QuadrupleHeapfile quadHeapfile, 
+			LabelHeapfile predicateHeapfile, String filter) throws Exception {
+		QID qid = ((QLeafData) nextEntry.data).getData();
+		Quadruple quadruple = quadHeapfile.getQuadruple(qid);
+		
+		String quadPred = predicateHeapfile.getLabel(quadruple.getPredicateID().returnLID()).getLabel();
+		
+		if (quadPred != filter) {
+			return false;
+		}	
+		return true;
+	}
+	
+	
+	public boolean objectFilterCheck(KeyDataEntry nextEntry, QuadrupleHeapfile quadHeapfile, 
+			LabelHeapfile entityHeapfile, String filter) throws Exception {
+		QID qid = ((QLeafData) nextEntry.data).getData();
+		Quadruple quadruple = quadHeapfile.getQuadruple(qid);
+		
+		String quadObject = entityHeapfile.getLabel(quadruple.getObjectID().returnLID()).getLabel();
+		
+		if (quadObject != filter) {
+			return false;
+		}	
+		return true;
+	}
+	
+	public boolean confidenceFilterCheck(KeyDataEntry nextEntry, QuadrupleHeapfile quadHeapfile, float filter) throws Exception {
+		QID qid = ((QLeafData) nextEntry.data).getData();
+		Quadruple quadruple = quadHeapfile.getQuadruple(qid);
+		
+		Float quadConfidence = quadruple.getConfidence();
+		
+		if (quadConfidence != filter) {
+			return false;
+		}
+		return true;
+	}
+	
+	public void scanIndexTree(int firstFilter, int secondFilter, boolean[] nullFilters,
+			rdfDB rdfdatabase, String subjectFilter, String predicateFilter, String objectFilter, String confidenceFilter) throws Exception {
+		
+		QBTreeFile indexBTree = rdfdatabase.getIndexBTreeFile();
+		QuadrupleHeapfile quadHeapfile = rdfdatabase.getQuadrupleHeap();
+		LabelHeapfile entityHeapfile = rdfdatabase.getEntityHeap();
+		LabelHeapfile predicateHeapfile = rdfdatabase.getPredicateHeap();
+		
+		Map<Integer, String> filterMap = new HashMap<Integer, String>();
+		filterMap.put(0, subjectFilter);
+		filterMap.put(1, predicateFilter);
+		filterMap.put(2, objectFilter);
+		filterMap.put(3, confidenceFilter);
+		
+		String conjoinedFilters = filterMap.get(firstFilter) + "," + filterMap.get(secondFilter);
+		
+		StringKey key = new StringKey(conjoinedFilters);
+		QBTFileScan indexFileScan = indexBTree.new_scan(key, key);
+		KeyDataEntry nextEntry = indexFileScan.get_next();
+		
+		while (nextEntry != null && ((StringKey) (nextEntry.key)).getKey().equals(conjoinedFilters)) {
+			boolean satisfiesFilters = true;
+			
+			if (firstFilter == 0) {
+				satisfiesFilters = subjectFilterCheck(nextEntry, quadHeapfile, entityHeapfile, subjectFilter);
+			}
+			if (firstFilter == 1) {
+				satisfiesFilters = predicateFilterCheck(nextEntry, quadHeapfile, predicateHeapfile, predicateFilter);
+			}
+			if (firstFilter == 2) {
+				satisfiesFilters = objectFilterCheck(nextEntry, quadHeapfile, entityHeapfile, objectFilter);
+			}
+			if (firstFilter == 3) {
+				satisfiesFilters = subjectFilterCheck(nextEntry, quadHeapfile, entityHeapfile, subjectFilter);
+			}
+			
+			if (satisfiesFilters) {
+				QID qid = ((QLeafData) nextEntry.data).getData();
+				Quadruple quad = quadHeapfile.getQuadruple(qid);
+				tempQHeap.insertQuadruple(quad.getQuadrupleByteArray());
+			}
+			
+//			if (nullFilters[2]) {
+//				satisfiesFilters = objectFilterCheck(nextEntry, quadHeapfile, entityHeapfile, objectFilter);
+//			}
+//			if (nullFilters[3] && satisfiesFilters) {
+//					satisfiesFilters = confidenceFilterCheck(nextEntry, quadHeapfile, Float.parseFloat(confidenceFilter));
+//			}
+		}
+		
+		indexFileScan.DestroyBTreeFileScan();
+		indexBTree.close();
+	}
 
-//     /** The heapfile we are using. */
-//     private Heapfile  _hf;
-
-//     /** PageId of current directory page (which is itself an HFPage) */
-//     private PageId dirpageId = new PageId();
-
-//     /** pointer to in-core data of dirpageId (page is pinned) */
-//     private HFPage dirpage = new HFPage();
-
-//     /** record ID of the DataPageInfo struct (in the directory page) which
-//      * describes the data page where our current record lives.
-//      */
-//     private RID datapageRid = new RID();
-
-//     /** the actual PageId of the data page with the current record */
-//     private PageId datapageId = new PageId();
-
-//     /** in-core copy (pinned) of the same */
-//     private HFPage datapage = new HFPage();
-
-//     /** record ID of the current record (from the current data page) */
-//     private RID userrid = new RID();
-
-//     /** Status of next user status */
-//     private boolean nextUserStatus;
     
      
-//     /** The constructor pins the first directory page in the file
-//      * and initializes its private data members from the private
-//      * data member from hf
-//      *
-//      * @exception InvalidTupleSizeException Invalid tuple size
-//      * @exception IOException I/O errors
-//      *
-//      * @param hf A HeapFile object
-//      */
-//   public Stream(Heapfile hf) 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   {
-// 	init(hf);
-//   }
+    /** The constructor pins the first directory page in the file
+     * and initializes its private data members from the private
+     * data member from hf
+     *
+     * @exception InvalidTupleSizeException Invalid tuple size
+     * @exception IOException I/O errors
+     *
+     * @param hf A HeapFile object
+     */
+	//used to be int not QuadrupleOrder
+  public Stream(rdfDB rdfdatabase, QuadrupleOrder orderType, String subjectFilter, String predicateFilter, 
+		  String objectFilter, float confidenceFilter) throws Exception
+  {
+	  
+	  boolean[] nullFilters = {
+			  	subjectFilter == "+",
+				predicateFilter == "+",
+				objectFilter == "+",
+				confidenceFilter == (float) -1.0
+	  };
+	  
+	  boolean[] indexOneKeys = { true, true, false, false };
+	  boolean[] indexTwoKeys = { true, false, true, false };
+	  boolean[] indexThreeKeys = {false, false, true, true };
+	  boolean[] indexFourKeys = {true, false, false, true };
+	  boolean[] indexFiveKeys = {false, true, true, false };
+
+	   
+	  switch(rdfdatabase.indexOption) {
+	  	case 1: {
+	  		
+	  		int count = 0;
+	  		boolean mismatch = false;
+ 	  		
+	  		while(!mismatch && count < indexOneKeys.length) {
+	  			
+	  			if (indexOneKeys[count] && !nullFilters[count]) {
+	  				mismatch = true;
+	  			}
+	  			else {
+	  				count++;
+	  			}
+  			}
+	  		
+	  		if (mismatch) {
+	  			//case 2 get quad heap and filter
+	  			scanQuadHeapWithFilters(rdfdatabase, nullFilters, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+	  		}
+	  		else {
+	  			//we know we can use subject predicate
+	  			//check if object is a filter, or confidence is a filter
+	  			
+	  			scanIndexTree(2, 3, nullFilters, rdfdatabase, subjectFilter, predicateFilter, objectFilter, Float.toString(confidenceFilter) );
+
+	  		}
+	  		
+	  		break;
+	  	}	
+	  	
+	  	case 2: {
+	  		int count = 0;
+	  		boolean mismatch = false;
+ 	  		
+	  		while(!mismatch && count < indexTwoKeys.length) {
+	  			
+	  			if (indexTwoKeys[count] && !nullFilters[count]) {
+	  				mismatch = true;
+	  			}
+	  			else {
+	  				count++;
+	  			}
+  			}
+	  		
+	  		if (mismatch) {
+	  			//case 2 get quad heap and filter
+	  			scanQuadHeapWithFilters(rdfdatabase, nullFilters, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+	  		}
+	  		else {
+	  			//we know we can use subject, object
+	  			//check if predicate is a filter, or confidence is a filter
+	  			scanIndexTree(1, 3, nullFilters, rdfdatabase, subjectFilter, predicateFilter, objectFilter, Float.toString(confidenceFilter) );
+	  		}
+	  		
+	  		break;
+	  	}
+	  	
+	  	case 3: {
+	  		int count = 0;
+	  		boolean mismatch = false;
+ 	  		
+	  		while(!mismatch && count < indexThreeKeys.length) {
+	  			
+	  			if (indexThreeKeys[count] && !nullFilters[count]) {
+	  				mismatch = true;
+	  			}
+	  			else {
+	  				count++;
+	  			}
+  			}
+	  		
+	  		if (mismatch) {
+	  			scanQuadHeapWithFilters(rdfdatabase, nullFilters, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+	  			//case 2 get quad heap and filter
+	  		}
+	  		else {
+	  			//we know we can use object, confidence
+	  			//check if subject is a filter, or predicate is a filter
+	  			scanIndexTree(0, 1, nullFilters, rdfdatabase, subjectFilter, predicateFilter, objectFilter, Float.toString(confidenceFilter) );
+	  		}
+	  		
+	  		break;
+	  	}
+	  	
+	  	case 4: {
+	  		int count = 0;
+	  		boolean mismatch = false;
+ 	  		
+	  		while(!mismatch && count < indexFourKeys.length) {
+	  			
+	  			if (indexFourKeys[count] && !nullFilters[count]) {
+	  				mismatch = true;
+	  			}
+	  			else {
+	  				count++;
+	  			}
+  			}
+	  		
+	  		if (mismatch) {
+	  			//case 2 get quad heap and filter
+	  			scanQuadHeapWithFilters(rdfdatabase, nullFilters, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+	  		}
+	  		else {
+	  			//we know we can use subject, confidence
+	  			//check if predicate is a filter, or object is a filter
+	  			scanIndexTree(1, 2, nullFilters, rdfdatabase, subjectFilter, predicateFilter, objectFilter, Float.toString(confidenceFilter) );
+	  		}
+	  		
+	  		break;
+	  	}
+	  	
+	  	case 5: {
+	  		int count = 0;
+	  		boolean mismatch = false;
+ 	  		
+	  		while(!mismatch && count < indexFiveKeys.length) {
+	  			
+	  			if (indexFiveKeys[count] && !nullFilters[count]) {
+	  				mismatch = true;
+	  			}
+	  			else {
+	  				count++;
+	  			}
+  			}
+	  		
+	  		if (mismatch) {
+	  			scanQuadHeapWithFilters(rdfdatabase, nullFilters, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
+	  			//case 2 get quad heap and filter
+	  		}
+	  		else {
+	  			//we know we can use predicate, object
+	  			//check if subject is a filter, or confidence is a filter
+	  			scanIndexTree(0, 3, nullFilters, rdfdatabase, subjectFilter, predicateFilter, objectFilter, Float.toString(confidenceFilter) );
+	  		}
+	  		
+	  		break;
+	  	}
+	  }
+	  	
+  	//Sort the results
+	tempScan = new TScan(tempQHeap);
+	try 
+	{
+		quadrupleSort = new QuadrupleSort(tempScan, orderType , 20);
+	}
+	catch (Exception e) 
+	{
+		e.printStackTrace();
+	}
+
+  
+  
+  }
+	  
+	  
+	  
+
+	  
+	  // based on index option, get quadruples in certain index format btree (i.e (Subject,Predicate))
+	  // this index btree points from keys of Subject,Predicate => quadruple object
+	  // this quadruple object contains all 4 fields, which must match filters
+	  
+	  // Case 1:
+	  // keys in btree == filters (and lines up)
+	  // nullFilters = {"s", "s", "*", -1}
+	  // keyInBtree = (Subject, Predicate)
+	  // Scan btree USING the filters, anything that is returned would satisfy the filter already
+	  //
+	  // Case 2:
+	  // Filters < keys fields in btree
+	  // nullFilters = {"s", "*", "*", -1}
+	  // keyInBtree = (subject, predicate)
+	  // we can't filter then key, because our key is missing predicates.
+	  // instead we get the whole quadruple heap, and filter from there
+	  //
+	  // Case 3:
+	  // Filters > key fields in btree
+	  // nullFilters = {"s", "s", "s", -1}
+	  // keyInBtree = (Subject, Predicate)
+	  // subjectFilter = "Austin"
+	  // predicateFilter = "drives"
+	  // objectFilter = "toyota"
+	  // key = "Austin,drives"
+	  
+	  // Scan btree with key but not filter yet, on those quadruples, we can filter
+	  
+	  
+	  
+	  //result (Quadruples):
+	  //"Austin drives toyota"
+	  // "Austin drives honda"
+	  // "Austin drives nissan"
+	  
+	  // case 1 and case 3 allow us to scan with the index file
+	  
+	  // Implementation
+	  // KEYS = (SUBJECT, PREDICATE)
+	  // filters = (subject, predicate, object)
+	  // difference = -object
+	  
+	  
+	  
+	  
+	  // if negative difference, get quads with key, apply different filter
+	  // if postive different, apply different filters to entire quad heap, get 
+	  
+	  
+//	  init(hf);
+  
 
 
   
-//   /** Retrieve the next record in a sequential scan
-//    *
-//    * @exception InvalidTupleSizeException Invalid tuple size
-//    * @exception IOException I/O errors
-//    *
-//    * @param rid Record ID of the record
-//    * @return the Tuple of the retrieved record.
-//    */
-//   public Tuple getNext(RID rid) 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   {
-//     Tuple recptrtuple = null;
-    
-//     if (nextUserStatus != true) {
-//         nextDataPage();
-//     }
-     
-//     if (datapage == null)
-//       return null;
-    
-//     rid.pageNo.pid = userrid.pageNo.pid;    
-//     rid.slotNo = userrid.slotNo;
-         
-//     try {
-//       recptrtuple = datapage.getRecord(rid);
-//     }
-    
-//     catch (Exception e) {
-//   //    System.err.println("SCAN: Error in Scan" + e);
-//       e.printStackTrace();
-//     }   
-    
-//     userrid = datapage.nextRecord(rid);
-//     if(userrid == null) nextUserStatus = false;
-//     else nextUserStatus = true;
-     
-//     return recptrtuple;
-//   }
+  /** Retrieve the next record in a sequential scan
+   *
+   * @exception InvalidTupleSizeException Invalid tuple size
+   * @exception IOException I/O errors
+   *
+   * @param rid Record ID of the record
+   * @return the Tuple of the retrieved record.
+   */
+  public Quadruple getNext(QID rid) throws Exception
+  {
+    return quadrupleSort.get_next();
+  }
 
-
-//     /** Position the scan cursor to the record with the given rid.
-//      * 
-//      * @exception InvalidTupleSizeException Invalid tuple size
-//      * @exception IOException I/O errors
-//      * @param rid Record ID of the given record
-//      * @return 	true if successful, 
-//      *			false otherwise.
-//      */
-//   public boolean position(RID rid) 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   { 
-//     RID    nxtrid = new RID();
-//     boolean bst;
-
-//     bst = peekNext(nxtrid);
-
-//     if (nxtrid.equals(rid)==true) 
-//     	return true;
-
-//     // This is kind lame, but otherwise it will take all day.
-//     PageId pgid = new PageId();
-//     pgid.pid = rid.pageNo.pid;
- 
-//     if (!datapageId.equals(pgid)) {
-
-//       // reset everything and start over from the beginning
-//       reset();
-      
-//       bst =  firstDataPage();
-
-//       if (bst != true)
-// 	return bst;
-      
-//       while (!datapageId.equals(pgid)) {
-// 	bst = nextDataPage();
-// 	if (bst != true)
-// 	  return bst;
-//       }
-//     }
-    
-//     // Now we are on the correct page.
-    
-//     try{
-//     	userrid = datapage.firstRecord();
-// 	}
-//     catch (Exception e) {
-//       e.printStackTrace();
-//     }
-	
-
-//     if (userrid == null)
-//       {
-//     	bst = false;
-//         return bst;
-//       }
-    
-//     bst = peekNext(nxtrid);
-    
-//     while ((bst == true) && (nxtrid != rid))
-//       bst = mvNext(nxtrid);
-    
-//     return bst;
-//   }
-
-
-//     /** Do all the constructor work
-//      *
-//      * @exception InvalidTupleSizeException Invalid tuple size
-//      * @exception IOException I/O errors
-//      *
-//      * @param hf A HeapFile object
-//      */
-//     private void init(Heapfile hf) 
-//       throws InvalidTupleSizeException,
-// 	     IOException
-//   {
-// 	_hf = hf;
-
-//     	firstDataPage();
-//   }
-
-
-//     /** Closes the Scan object */
-//     public void closescan()
-//     {
-//     	reset();
-//     }
-   
-
-//     /** Reset everything and unpin all pages. */
-//     private void reset()
-//     { 
-
-//     if (datapage != null) {
-    
-//     try{
-//       unpinPage(datapageId, false);
-//     }
-//     catch (Exception e){
-//       // 	System.err.println("SCAN: Error in Scan" + e);
-//       e.printStackTrace();
-//     }  
-//     }
-//     datapageId.pid = 0;
-//     datapage = null;
-
-//     if (dirpage != null) {
-    
-//       try{
-// 	unpinPage(dirpageId, false);
-//       }
-//       catch (Exception e){
-// 	//     System.err.println("SCAN: Error in Scan: " + e);
-// 	e.printStackTrace();
-//       }
-//     }
-//     dirpage = null;
- 
-//     nextUserStatus = true;
-
-//   }
- 
- 
-//   /** Move to the first data page in the file. 
-//    * @exception InvalidTupleSizeException Invalid tuple size
-//    * @exception IOException I/O errors
-//    * @return true if successful
-//    *         false otherwise
-//    */
-//   private boolean firstDataPage() 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   {
-//     DataPageInfo dpinfo;
-//     Tuple        rectuple = null;
-//     Boolean      bst;
-
-//     /** copy data about first directory page */
- 
-//     dirpageId.pid = _hf._firstDirPageId.pid;  
-//     nextUserStatus = true;
-
-//     /** get first directory page and pin it */
-//     	try {
-// 	   dirpage  = new HFPage();
-//        	   pinPage(dirpageId, (Page) dirpage, false);	   
-//        }
-
-//     	catch (Exception e) {
-//     //    System.err.println("SCAN Error, try pinpage: " + e);
-// 	e.printStackTrace();
-// 	}
-    
-//     /** now try to get a pointer to the first datapage */
-// 	 datapageRid = dirpage.firstRecord();
-	 
-//     	if (datapageRid != null) {
-//     /** there is a datapage record on the first directory page: */
-	
-// 	try {
-//           rectuple = dirpage.getRecord(datapageRid);
-// 	}  
-				
-// 	catch (Exception e) {
-// 	//	System.err.println("SCAN: Chain Error in Scan: " + e);
-// 		e.printStackTrace();
-// 	}		
-      			    
-//     	dpinfo = new DataPageInfo(rectuple);
-//         datapageId.pid = dpinfo.pageId.pid;
-
-//     } else {
-
-//     /** the first directory page is the only one which can possibly remain
-//      * empty: therefore try to get the next directory page and
-//      * check it. The next one has to contain a datapage record, unless
-//      * the heapfile is empty:
-//      */
-//       PageId nextDirPageId = new PageId();
-      
-//       nextDirPageId = dirpage.getNextPage();
-      
-//       if (nextDirPageId.pid != INVALID_PAGE) {
-	
-// 	try {
-//             unpinPage(dirpageId, false);
-//             dirpage = null;
-// 	    }
-	
-// 	catch (Exception e) {
-// 	//	System.err.println("SCAN: Error in 1stdatapage 1 " + e);
-// 		e.printStackTrace();
-// 	}
-        	
-// 	try {
-	
-//            dirpage = new HFPage();
-// 	    pinPage(nextDirPageId, (Page )dirpage, false);
-	
-// 	    }
-	
-// 	catch (Exception e) {
-// 	//  System.err.println("SCAN: Error in 1stdatapage 2 " + e);
-// 	  e.printStackTrace();
-// 	}
-	
-// 	/** now try again to read a data record: */
-	
-// 	try {
-// 	  datapageRid = dirpage.firstRecord();
-// 	}
-        
-// 	catch (Exception e) {
-// 	//  System.err.println("SCAN: Error in 1stdatapg 3 " + e);
-// 	  e.printStackTrace();
-// 	  datapageId.pid = INVALID_PAGE;
-// 	}
-       
-// 	if(datapageRid != null) {
-          
-// 	  try {
-	  
-// 	    rectuple = dirpage.getRecord(datapageRid);
-// 	  }
-	  
-// 	  catch (Exception e) {
-// 	//    System.err.println("SCAN: Error getRecord 4: " + e);
-// 	    e.printStackTrace();
-// 	  }
-	  
-// 	  if (rectuple.getLength() != DataPageInfo.size)
-// 	    return false;
-	  
-// 	  dpinfo = new DataPageInfo(rectuple);
-// 	  datapageId.pid = dpinfo.pageId.pid;
-	  
-//          } else {
-// 	   // heapfile empty
-//            datapageId.pid = INVALID_PAGE;
-//          }
-//        }//end if01
-//        else {// heapfile empty
-// 	datapageId.pid = INVALID_PAGE;
-// 	}
-// }	
-	
-// 	datapage = null;
-
-// 	try{
-//          nextDataPage();
-// 	  }
-	  
-// 	catch (Exception e) {
-// 	//  System.err.println("SCAN Error: 1st_next 0: " + e);
-// 	  e.printStackTrace();
-// 	}
-	
-//       return true;
-      
-//       /** ASSERTIONS:
-//        * - first directory page pinned
-//        * - this->dirpageId has Id of first directory page
-//        * - this->dirpage valid
-//        * - if heapfile empty:
-//        *    - this->datapage == NULL, this->datapageId==INVALID_PAGE
-//        * - if heapfile nonempty:
-//        *    - this->datapage == NULL, this->datapageId, this->datapageRid valid
-//        *    - first datapage is not yet pinned
-//        */
-    
-//   }
-    
-
-//   /** Move to the next data page in the file and 
-//    * retrieve the next data page. 
-//    *
-//    * @return 		true if successful
-//    *			false if unsuccessful
-//    */
-//   private boolean nextDataPage() 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   {
-//     DataPageInfo dpinfo;
-    
-//     boolean nextDataPageStatus;
-//     PageId nextDirPageId = new PageId();
-//     Tuple rectuple = null;
-
-//   // ASSERTIONS:
-//   // - this->dirpageId has Id of current directory page
-//   // - this->dirpage is valid and pinned
-//   // (1) if heapfile empty:
-//   //    - this->datapage==NULL; this->datapageId == INVALID_PAGE
-//   // (2) if overall first record in heapfile:
-//   //    - this->datapage==NULL, but this->datapageId valid
-//   //    - this->datapageRid valid
-//   //    - current data page unpinned !!!
-//   // (3) if somewhere in heapfile
-//   //    - this->datapageId, this->datapage, this->datapageRid valid
-//   //    - current data page pinned
-//   // (4)- if the scan had already been done,
-//   //        dirpage = NULL;  datapageId = INVALID_PAGE
-    
-//     if ((dirpage == null) && (datapageId.pid == INVALID_PAGE))
-//         return false;
-
-//     if (datapage == null) {
-//       if (datapageId.pid == INVALID_PAGE) {
-// 	// heapfile is empty to begin with
-	
-// 	try{
-// 	  unpinPage(dirpageId, false);
-// 	  dirpage = null;
-// 	}
-// 	catch (Exception e){
-// 	//  System.err.println("Scan: Chain Error: " + e);
-// 	  e.printStackTrace();
-// 	}
-	
-//       } else {
-	
-// 	// pin first data page
-// 	try {
-// 	  datapage  = new HFPage();
-// 	  pinPage(datapageId, (Page) datapage, false);
-// 	}
-// 	catch (Exception e){
-// 	  e.printStackTrace();
-// 	}
-	
-// 	try {
-// 	  userrid = datapage.firstRecord();
-// 	}
-// 	catch (Exception e) {
-// 	  e.printStackTrace();
-// 	}
-	
-// 	return true;
-//         }
-//     }
   
-//   // ASSERTIONS:
-//   // - this->datapage, this->datapageId, this->datapageRid valid
-//   // - current datapage pinned
+  public void closeStream() {
+	  try {
+		  if (tempScan != null) {
+			  tempScan.closescan();
+		  }
+		  if (tempQHeap != null) {
+			  tempQHeap.deleteFile();
+		  }
+		  if (quadrupleSort != null) {
+			  quadrupleSort.close();
+		  }
 
-//     // unpin the current datapage
-//     try{
-//       unpinPage(datapageId, false /* no dirty */);
-//         datapage = null;
-//     }
-//     catch (Exception e){
-      
-//     }
-          
-//     // read next datapagerecord from current directory page
-//     // dirpage is set to NULL at the end of scan. Hence
-    
-//     if (dirpage == null) {
-//       return false;
-//     }
-    
-//     datapageRid = dirpage.nextRecord(datapageRid);
-    
-//     if (datapageRid == null) {
-//       nextDataPageStatus = false;
-//       // we have read all datapage records on the current directory page
-      
-//       // get next directory page
-//       nextDirPageId = dirpage.getNextPage();
-  
-//       // unpin the current directory page
-//       try {
-// 	unpinPage(dirpageId, false /* not dirty */);
-// 	dirpage = null;
-	
-// 	datapageId.pid = INVALID_PAGE;
-//       }
-      
-//       catch (Exception e) {
-	
-//       }
-		    
-//       if (nextDirPageId.pid == INVALID_PAGE)
-// 	return false;
-//       else {
-// 	// ASSERTION:
-// 	// - nextDirPageId has correct id of the page which is to get
-	
-// 	dirpageId = nextDirPageId;
-	
-//  	try { 
-// 	  dirpage  = new HFPage();
-// 	  pinPage(dirpageId, (Page)dirpage, false);
-// 	}
-	
-// 	catch (Exception e){
-	  
-// 	}
-	
-// 	if (dirpage == null)
-// 	  return false;
-	
-//     	try {
-// 	  datapageRid = dirpage.firstRecord();
-// 	  nextDataPageStatus = true;
-// 	}
-// 	catch (Exception e){
-// 	  nextDataPageStatus = false;
-// 	  return false;
-// 	} 
-//       }
-//     }
-    
-//     // ASSERTION:
-//     // - this->dirpageId, this->dirpage valid
-//     // - this->dirpage pinned
-//     // - the new datapage to be read is on dirpage
-//     // - this->datapageRid has the Rid of the next datapage to be read
-//     // - this->datapage, this->datapageId invalid
-  
-//     // data page is not yet loaded: read its record from the directory page
-//    	try {
-// 	  rectuple = dirpage.getRecord(datapageRid);
-// 	}
-	
-// 	catch (Exception e) {
-// 	  System.err.println("HeapFile: Error in Scan" + e);
-// 	}
-	
-// 	if (rectuple.getLength() != DataPageInfo.size)
-// 	  return false;
-                        
-// 	dpinfo = new DataPageInfo(rectuple);
-// 	datapageId.pid = dpinfo.pageId.pid;
-	
-//  	try {
-// 	  datapage = new HFPage();
-// 	  pinPage(dpinfo.pageId, (Page) datapage, false);
-// 	}
-	
-// 	catch (Exception e) {
-// 	  System.err.println("HeapFile: Error in Scan" + e);
-// 	}
-	
-     
-//      // - directory page is pinned
-//      // - datapage is pinned
-//      // - this->dirpageId, this->dirpage correct
-//      // - this->datapageId, this->datapage, this->datapageRid correct
-
-//      userrid = datapage.firstRecord();
-     
-//      if(userrid == null)
-//      {
-//        nextUserStatus = false;
-//        return false;
-//      }
-  
-//      return true;
-//   }
+	  } catch (Exception e) {
+		  e.printStackTrace();
+	  }  
+  }
 
 
-//   private boolean peekNext(RID rid) {
-    
-//     rid.pageNo.pid = userrid.pageNo.pid;
-//     rid.slotNo = userrid.slotNo;
-//     return true;
-    
-//   }
 
-
-//   /** Move to the next record in a sequential scan.
-//    * Also returns the RID of the (new) current record.
-//    */
-//   private boolean mvNext(RID rid) 
-//     throws InvalidTupleSizeException,
-// 	   IOException
-//   {
-//     RID nextrid;
-//     boolean status;
-
-//     if (datapage == null)
-//         return false;
-
-//     	nextrid = datapage.nextRecord(rid);
-	
-// 	if( nextrid != null ){
-// 	  userrid.pageNo.pid = nextrid.pageNo.pid;
-// 	  userrid.slotNo = nextrid.slotNo;
-// 	  return true;
-// 	} else {
-	  
-// 	  status = nextDataPage();
-
-// 	  if (status==true){
-// 	    rid.pageNo.pid = userrid.pageNo.pid;
-// 	    rid.slotNo = userrid.slotNo;
-// 	  }
-	
-// 	}
-// 	return true;
-//   }
-
-//     /**
-//    * short cut to access the pinPage function in bufmgr package.
-//    * @see bufmgr.pinPage
-//    */
-//   private void pinPage(PageId pageno, Page page, boolean emptyPage)
-//     throws HFBufMgrException {
-
-//     try {
-//       SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
-//     }
-//     catch (Exception e) {
-//       throw new HFBufMgrException(e,"Scan.java: pinPage() failed");
-//     }
-
-//   } // end of pinPage
-
-//   /**
-//    * short cut to access the unpinPage function in bufmgr package.
-//    * @see bufmgr.unpinPage
-//    */
-//   private void unpinPage(PageId pageno, boolean dirty)
-//     throws HFBufMgrException {
-
-//     try {
-//       SystemDefs.JavabaseBM.unpinPage(pageno, dirty);
-//     }
-//     catch (Exception e) {
-//       throw new HFBufMgrException(e,"Scan.java: unpinPage() failed");
-//     }
-
-//   } // end of unpinPage
-
-
-// }
+}

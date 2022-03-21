@@ -42,8 +42,28 @@ public class rdfDB implements GlobalConst {
   private LBTreeFile distinctObjectsTree;
   
   private QBTreeFile indexingBtree;
+  
 
   private int quadCnt;
+  
+  public int indexOption;
+//  public QuadrupleHeapfile tempQHeap;
+  
+  
+  public QuadrupleHeapfile getQuadrupleHeap() {
+	  return quadHeap;
+  }
+  public LabelHeapfile getEntityHeap() {
+	  return entityHeap;
+  }
+  public LabelHeapfile getPredicateHeap() {
+	  return predicateHeap;
+  }
+  
+  public QBTreeFile getIndexBTreeFile() {
+	  return indexingBtree;
+  }
+  
 
 //  private String dbName = "";
 
@@ -111,8 +131,50 @@ public class rdfDB implements GlobalConst {
   }
 
   public rdfDB(int type) {
-
+	  indexOption = type;
+//	  try {
+//		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
+//		  entityHeap = new LabelHeapfile(name + "/ehfile");
+//		  predicateHeap = new LabelHeapfile(name + "/phfile");
+//		  tempQHeap = new QuadrupleHeapfile(name + "/thfile");
+//		  
+//		  quadBTree = new QBTreeFile(name + "/qbtree", AttrType.attrString, 255, 1);
+//		  entityBTree = new LBTreeFile(name + "/ebtree", AttrType.attrString, 255, 1);
+//		  predicateBTree = new LBTreeFile(name + "/pbtree", AttrType.attrString, 255, 1);
+//		  distinctSubjectsTree = new LBTreeFile(name + "/dsbtree", AttrType.attrString, 255, 1);
+//		  distinctObjectsTree = new LBTreeFile(name + "/dobtree", AttrType.attrString, 255, 1);
+//	  }
+//	  catch (Exception e) {
+//		  e.printStackTrace();
+//	  }
   }
+  
+  public void createIndex() {
+	  switch(indexOption) {
+		  case 1: {
+			  genIndexOne();
+			  return;
+		  }
+		  case 2: {
+			  genIndexTwo();
+			  return;
+		  }
+		  case 3: {
+			  genIndexThree();
+			  return;
+		  }
+		  case 4: {
+			  genIndexFour();
+			  return;
+		  }
+		  case 5: {
+			  genIndexFive();
+			  return;
+		  }
+	  }
+  }
+  
+ 
   
   public void init() {
 	  //DO NOT USE IN FINAL
@@ -120,6 +182,7 @@ public class rdfDB implements GlobalConst {
 		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
 		  entityHeap = new LabelHeapfile(name + "/ehfile");
 		  predicateHeap = new LabelHeapfile(name + "/phfile");
+//		  tempQHeap = new QuadrupleHeapfile(name + "/thfile");
 		  
 		  quadBTree = new QBTreeFile(name + "/qbtree", AttrType.attrString, 255, 1);
 		  entityBTree = new LBTreeFile(name + "/ebtree", AttrType.attrString, 255, 1);
@@ -131,6 +194,19 @@ public class rdfDB implements GlobalConst {
 		  e.printStackTrace();
 	  }
 
+  }
+  
+  public void deinit() {
+	  try {
+		  quadHeap.deleteFile();
+		  entityHeap.deleteFile();
+		  predicateHeap.deleteFile();
+//		  tempQHeap.deleteFile();
+	  }
+	  catch (Exception e) {
+		  e.printStackTrace();
+	  }
+	  
   }
 
   public int getQuadrupleCnt() {
@@ -569,6 +645,7 @@ public class rdfDB implements GlobalConst {
     byte[] buffer = apage.getpage(); // new byte[MINIBASE_PAGESIZE];
     try {
       fp.read(buffer);
+      Pcounter.readIncrement();
     } catch (IOException e) {
       throw new FileIOException(e, "DB file I/O error");
     }
@@ -599,6 +676,7 @@ public class rdfDB implements GlobalConst {
     // Write the appropriate number of bytes.
     try {
       fp.write(apage.getpage());
+      Pcounter.writeIncrement();
     } catch (IOException e) {
       throw new FileIOException(e, "DB file I/O error");
     }
@@ -1250,7 +1328,7 @@ public class rdfDB implements GlobalConst {
 		  
 		  quadHeap = new QuadrupleHeapfile(name + "/qhfile");
 		  entityHeap = new LabelHeapfile(name + "/ehfile");
-		  predicateHeap = new LabelHeapfile(name + "phfile");
+		  predicateHeap = new LabelHeapfile(name + "/phfile");
 		  
 		  TScan qScan = new TScan(quadHeap);
 		  
@@ -1260,6 +1338,21 @@ public class rdfDB implements GlobalConst {
 		  while( currentQuadruple != null ) {
 			  Label subjectLabel = entityHeap.getLabel(currentQuadruple.getSubjectID().returnLID());
 			  Label predicateLabel = predicateHeap.getLabel(currentQuadruple.getPredicateID().returnLID());
+			  
+			  //for debugging
+			  
+			  if (subjectLabel == null){
+				  System.out.println("STOP HERE");
+			  }
+			  
+			  
+			  String subject = subjectLabel.getLabel();
+//			  Label objectLabel = entityHeap.getLabel(currentQuadruple.getObjectID().returnLID());
+//			  System.out.println(subjectLabel.getLabel() + " " + predicateLabel.getLabel() + " " + objectLabel.getLabel());
+			  
+			  
+			  String predicate = predicateLabel.getLabel();
+			  System.out.println(subject + " " + predicate);
 			    
 			  indexingBtree.insert(new StringKey(
 					  subjectLabel.getLabel() + "," + predicateLabel.getLabel()), qid);
@@ -1373,7 +1466,7 @@ public class rdfDB implements GlobalConst {
 	  }
   }
   
-  //Object Predicate
+  //Predicate Object
   public void genIndexFive() {
 	  try {
 		  indexingBtree = new QBTreeFile(name + "/ibtree", AttrType.attrString, 255, 1);
@@ -1392,7 +1485,7 @@ public class rdfDB implements GlobalConst {
 			  Label predicateLabel = predicateHeap.getLabel(currentQuadruple.getPredicateID().returnLID());
 			    
 			  indexingBtree.insert(new StringKey(
-					  objectLabel.getLabel() + "," + predicateLabel.getLabel()), qid);
+					  predicateLabel.getLabel() + "," + objectLabel.getLabel()), qid);
 			  
 			  currentQuadruple = qScan.getNext(qid);
 		  }
@@ -1403,6 +1496,12 @@ public class rdfDB implements GlobalConst {
 	  catch (Exception e) {
 		  e.printStackTrace();
 	  }
+  }
+  
+  
+  public Stream openStream (QuadrupleOrder orderType, String subjectFilter, 
+		  String predicateFilter, String objectFilter, float confidenceFilter) throws Exception {
+	  return new Stream(this, orderType, subjectFilter, predicateFilter, objectFilter, confidenceFilter);
   }
   
   

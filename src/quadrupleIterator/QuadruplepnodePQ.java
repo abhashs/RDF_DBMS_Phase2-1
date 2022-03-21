@@ -23,7 +23,7 @@ public abstract class QuadruplepnodePQ
   protected AttrType              fld_type;
 
   /** the sorting order (Ascending or Descending) */
-  protected TupleOrder            sort_order;
+  protected QuadrupleOrder            sort_order;
 
   /**
    * class constructor, set <code>count</code> to <code>0</code>.
@@ -51,7 +51,7 @@ public abstract class QuadruplepnodePQ
    *                           <code>attrNull</code> encountered
    * @exception TupleUtilsException error in tuple compare routines
    */
-  abstract public void  enq(Quadruplepnode  item) 
+  abstract public void  quadrupleenq(Quadruplepnode  item) 
            throws IOException, QuadrupleUnknowAttrType, QuadrupleUtilsException;      
 
   /**
@@ -59,7 +59,7 @@ public abstract class QuadruplepnodePQ
    * from the tree.
    * @return the element removed, null if the tree is empty
    */
-  abstract public Quadruplepnode    deq();
+  abstract public Quadruplepnode    quadrupledeq();
 	
 
   /**
@@ -74,12 +74,12 @@ public abstract class QuadruplepnodePQ
    *                           <code>attrNull</code> encountered
    * @exception TupleUtilsException error in tuple compare routines
    */
-  public int pnodeCMP(Quadruplepnode a, Quadruplepnode b) 
+  public int quadruplepnodeCMP(Quadruplepnode a, Quadruplepnode b) 
          throws IOException, QuadrupleUnknowAttrType, QuadrupleUtilsException {
 	  
 	  //TEMPORARY, CHANGE BACK/FIX
-	  int ans = 0;
-//    int ans = QuadrupleUtils.CompareTupleWithTuple(fld_type, a.tuple, fld_no, b.tuple, fld_no);
+//	  int ans = 0;
+    int ans = QuadrupleUtils.compareByOrder(a.quadruple, b.quadruple, sort_order);
     return ans;
   }
 
@@ -94,8 +94,8 @@ public abstract class QuadruplepnodePQ
    *                           <code>attrNull</code> encountered
    * @exception TupleUtilsException error in tuple compare routines
    */  
-  public boolean pnodeEQ(Quadruplepnode a, Quadruplepnode b) throws IOException, QuadrupleUnknowAttrType, QuadrupleUtilsException {
-    return pnodeCMP(a, b) == 0;
+  public boolean quadruplepnodeEQ(Quadruplepnode a, Quadruplepnode b) throws IOException, QuadrupleUnknowAttrType, QuadrupleUtilsException {
+    return quadruplepnodeCMP(a, b) == 0;
   }
   
   /**

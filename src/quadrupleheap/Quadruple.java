@@ -207,11 +207,19 @@ public class Quadruple implements GlobalConst{
       quadruple_offset = 0;
       quadruple_length = QUADRUPLE_SIZE;
 
-      setSubjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 0).returnEID());
-      setPredicateID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 8).returnPID());
-      setObjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 16).returnEID());
-      setConfidence(Convert.getFloValue(offset + 24, fromQuadruple));
+//      setSubjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 0).returnEID());
+//      setPredicateID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 8).returnPID());
+//      setObjectID(Quadruple.getLIDfromByteArray(fromQuadruple, offset + 16).returnEID());
+//      setConfidence(Convert.getFloValue(offset + 24, fromQuadruple));
   }
+ 
+// public void quadrupleSet(byte[] fromQuadruple, int offset, int size) throws IOException
+// {
+//     // System.arraycopy(fromQuadruple, offset, data, 0, quadruple_length);
+//     System.arraycopy(fromQuadruple, offset, data, 0, QUADRUPLE_SIZE);
+//     quadruple_offset = 0;
+//     quadruple_length = size;
+// }
   
  /** get the length of a tuple, call this method if you did not 
   *  call setHdr () before

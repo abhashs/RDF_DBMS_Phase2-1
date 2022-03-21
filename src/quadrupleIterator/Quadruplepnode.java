@@ -4,6 +4,7 @@ import global.*;
 import bufmgr.*;
 import diskmgr.*;
 import heap.*;
+import quadrupleheap.Quadruple;
 
 /**
  * A structure describing a tuple.
@@ -14,7 +15,7 @@ public class Quadruplepnode {
   public int     run_num;
 
   /** the tuple reference */
-  public Tuple   tuple;
+  public Quadruple   quadruple;
 
   /**
    * class constructor, sets <code>run_num</code> to 0 and <code>tuple</code>
@@ -23,7 +24,7 @@ public class Quadruplepnode {
   public Quadruplepnode() 
   {
     run_num = 0;  // this may need to be changed
-    tuple = null; 
+    quadruple = null; 
   }
   
   /**
@@ -31,10 +32,10 @@ public class Quadruplepnode {
    * @param runNum the run number
    * @param t      the tuple
    */
-  public Quadruplepnode(int runNum, Tuple t) 
+  public Quadruplepnode(int runNum, Quadruple t) 
   {
     run_num = runNum;
-    tuple = t;
+    quadruple = t;
   }
   
 }
