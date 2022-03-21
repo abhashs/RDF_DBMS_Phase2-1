@@ -38,7 +38,7 @@ public class Query {
 		
 		float confidenceFilter = -1;
 		
-		if (args[6] != "+") {
+		if (args[6].compareTo("+") != 0) {
 			System.out.println(args[6]);
 			confidenceFilter = Float.parseFloat(args[6]);
 		}

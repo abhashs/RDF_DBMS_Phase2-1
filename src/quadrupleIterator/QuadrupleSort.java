@@ -32,7 +32,7 @@ public class QuadrupleSort extends QuadrupleIterator implements GlobalConst {
 	private int Nruns;
 	private int max_elems_in_heap;
 	private int sortFldLen;
-	private int quadruple_size;
+//	private int quadruple_size;
 	private TScan quadrupleScan; // Maybe should be _am
 
 	private QuadruplepnodeSplayPQ Q;
@@ -267,7 +267,7 @@ public class QuadrupleSort extends QuadrupleIterator implements GlobalConst {
 				}
 
 				// need io_bufs.java
-				o_buf.init(bufs, _n_pages, quadruple_size, temp_files[run_num], false);
+				o_buf.init(bufs, _n_pages, QUADRUPLE_SIZE, temp_files[run_num], false);
 
 				// set the last Elem to be the minimum value for the sort field
 				lastElem = new Quadruple(); // need tuple.java
@@ -346,7 +346,7 @@ public class QuadrupleSort extends QuadrupleIterator implements GlobalConst {
 					}
 
 					// need io_bufs.java
-					o_buf.init(bufs, _n_pages, quadruple_size, temp_files[run_num], false);
+					o_buf.init(bufs, _n_pages, QUADRUPLE_SIZE, temp_files[run_num], false);
 
 					// set the last Elem to be the minimum value for the sort field
 					lastElem = new Quadruple(); // need tuple.java
@@ -474,7 +474,7 @@ public class QuadrupleSort extends QuadrupleIterator implements GlobalConst {
 
 		o_buf = new QuadrupleOBuf();
 
-		o_buf.init(bufs, _n_pages, quadruple_size, temp_files[0], false);
+		o_buf.init(bufs, _n_pages, QUADRUPLE_SIZE, temp_files[0], false);
 		// output_tuple = null;
 
 		max_elems_in_heap = 200;
